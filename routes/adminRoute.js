@@ -36,7 +36,6 @@ admin_route.get('/logout',auth.isLogin,adminController.logout)
 admin_route.get('/customer',auth.isLogin,adminController.adminDashboard)
 // Route for fetching yearly chart data
 admin_route.get('/getYearlyChartData', adminController.getYearlyChartData);
-
 // Route for fetching monthly chart data
 admin_route.get('/getMonthlyChartData', adminController.getMonthlyChartData);
 
