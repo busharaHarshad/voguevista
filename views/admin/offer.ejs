@@ -1,0 +1,62 @@
+<%- include('../layout/adminheader.ejs') %>
+
+<div class="main-content">
+<div class="sidebar">
+    <div class="sidebar-buttons">
+      <a href="/admin/home" ><button type="button" class="buttonside btn-block "><i class="fa-solid fa-chess-board"></i>  Dashboard</button></a>
+      <a href="/admin/customer"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-users"></i>   Customers</button></a>
+      <a href="/admin/product"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-briefcase"></i>   Products</button></a>
+      <a href="/admin/order"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-file"></i>   Orders</button></a>
+      <a href=""><button type="button" class="buttonside btn-block"><i class="fa-regular fa-image"></i>  Banner Management</button></a>
+      <a href="/admin/coupon"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-star"></i>       Coupon Management</button></a>
+      <a href="/admin/salereport"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-chart-simple"></i>  Sales Report</button></a>
+      <a href="/admin/offer"><button type="button" class="buttonside btn-block active-linking text-white"><i class="fa-solid fa-user-tie"></i>        Offer</button></a>
+      <a href="/admin/category"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-list"></i>        Category</button></a>
+      <a href=""><button type="button" class="buttonside  btn-block"><i class="fa-solid fa-gear"></i>   Settings</button>
+      <a href="/admin/logout"><button type="button" class="buttonside  btn-block"><i class="fa-solid fa-right-from-bracket"></i>   Logout</button></a>
+    
+    </div>
+  </div>
+    <div class="container-table  mt-5">
+        <div class="col-md-5">
+            <span><a href="/admin/addoffer" class="btn addbutton">Add Offer</a></span>
+          </div>
+          <br>  
+          <div class="body-table">
+            <table class="table">
+        <thead class="headertable">
+                <tr>
+                    <th scope="col">OFFER</th>
+                    <th scope="col">PERCENTAGE</th>
+                    <th scope="col">STRATING dATE</th>
+                    <th scope="col">EXPIRY dATE</th>
+                    <th scope="col">STATUS</th>
+                    <th scope="col">ACTION</th>
+                </tr>
+        </thead>
+        <tbody>
+            <% if (offer && offer.length > 0) { %>
+                <% offer.forEach(singleOffer => { %>
+                    <tr>
+                        <td><%= singleOffer.offername %></td>
+                        <td><%= singleOffer.percentage %>%</td>
+                        <td><%= singleOffer.startDate.toDateString() %></td>
+                        <td><%= singleOffer.expiryDate.toDateString() %></td>
+                        <td><%= singleOffer.status %></td>
+                        <td>
+                            <a href="/admin/editoffer?id=<%= singleOffer._id%>"><i class="fa-solid fa-pen text-dark"></i></a>
+                            </td>
+                    </tr>
+                <% }); %>
+            <% } else { %>
+                <tr>
+                    <td colspan="5">No offers found.</td>
+                </tr>
+            <% } %>
+        </tbody>
+               </table>
+              
+  </div>
+  </div>
+</div>
+<%- include('../layout/adminfooter.ejs') %>

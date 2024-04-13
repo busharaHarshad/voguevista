@@ -1,0 +1,59 @@
+<%- include('../layout/adminheader.ejs') %>
+<div class="main-content">
+<div class="sidebar">
+    <div class="sidebar-buttons">
+      <a href="/admin/home"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-chess-board"></i>  Dashboard</button></a>
+      <a href="/admin/customer"><button type="button" class="buttonside btn-block "><i class="fa-solid fa-users"></i>   Customers</button></a>
+      <a href="/admin/product"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-briefcase"></i>   Products</button></a>
+      <a href="/admin/order"><button type="button" class="buttonside btn-block active-linking text-white"><i class="fa-solid fa-file "></i>   Orders</button></a>
+      <a href=""><button type="button" class="buttonside btn-block"><i class="fa-regular fa-image"></i>  Banner Management</button></a>
+      <a href="/admin/coupon"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-star"></i>       Coupon Management</button></a>
+      <a href="/admin/salereport"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-chart-simple"></i>  Sales Report</button></a>
+      <a href="/admin/offer"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-user-tie"></i>        Offer</button></a>
+      <a href="/admin/category"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-list"></i>        Category</button></a>
+      <a href=""><button type="button" class="buttonside  btn-block"><i class="fa-solid fa-gear"></i>   Settings</button>
+      <a href="/admin/logout"><button type="button" class="buttonside  btn-block"><i class="fa-solid fa-right-from-bracket"></i>   Logout</button></a>
+      </div>
+  </div>
+  <div class=" container mt-5 pt-5 mr-5">
+    <div class=" container mt-1 mr-5 pl-3 ml-5">
+        <h2>Order Details</h2>
+      <div class="order-details">
+        <p><strong>Order ID:</strong> <%= order._id %></p>
+        <p><strong>Payment Method:</strong> <%= order.paymentMethod %></p>
+        <% if (order.product.some(product => product.orderStatus === 'returned')) { %>
+          <!-- Check if any product in the order has the status 'returned' -->
+          <p><strong>Return Reason:</strong> <%= product.returnReason %></p>
+      <% } %>
+         <p><strong>Delivery Details:</strong></p>
+         <% if (order.address) { %>
+            <p><strong>Name:</strong> <%= order.address.name %></p>
+            <p><strong>Mobile:</strong> <%= order.address.mobile %></p>
+            <p><strong>Address:</strong> <%= order.address.address %></p>
+            <p><strong>Pincode:</strong> <%= order.address.pincode %></p>
+            <p><strong>State:</strong> <%= order.address.state %></p>
+            <p><strong>District:</strong> <%= order.address.district %></p>
+            <p><strong>City:</strong> <%= order.address.city %></p>
+          <% } else { %>
+            <p>No address details available</p>
+          <% } %>
+         <h3>Products:</h3>
+        <ul>
+          <% order.product.forEach(product => { %>
+            <li>
+                <img class="order-image pt-3" src="/img/<%= product.productId.image[0].filename %>" width="90px"
+                height="90px">
+              <p><strong>Product Name:</strong> <%= product.productId.productName %></p>
+              <p><strong>Description:</strong> <%= product.productId.description %></p>
+              <p><strong>Quantity:</strong> <%= product.quantity %></p>
+              <p><strong>Status:</strong> <%= product.orderStatus %></p>
+             
+            </li>
+          <% }); %>
+          
+        </ul>
+      </div>
+    </div>
+  </div>
+  </div>
+  <%- include('../layout/adminfooter.ejs') %>

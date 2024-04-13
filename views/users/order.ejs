@@ -1,0 +1,159 @@
+<%- include('../layout/header.ejs') %>
+
+<div >
+
+<div class="d-flex" id="wrapper">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="username-box">
+            <p class="username-text  pt-3 pl-5"> <i class="fa-regular fa-user"></i>   <%= user.name %></p>
+        </div>
+       <a href="/profile" class="btn btn-light btn-block btn-sidebar pt-3">Account Overview</a>
+        <a href="/address" class="btn btn-light btn-block btn-sidebar ">Manage Address</a>
+        <a href="/order" class="btn btn-light btn-block btn-sidebar sidebar-link  pt-3">Orders</a>
+        <a href="/wishlist" class="btn btn-light btn-block btn-sidebar  pt-3">Wishlist</a>
+        <a href="/wallet" class="btn btn-light btn-block btn-sidebar pt-3">Wallet</a>
+    </div>
+    <!-- /#sidebar-wrapper -->
+
+    <!-- Page Content -->
+    <div id="page-content-wrapper" class="flex-grow-1 pl-3">
+        <div class="container-fluid">
+          <!-- order.ejs -->
+          <h4>Orders:</h4>
+          <% order.forEach((order) => { %>
+            <div class="order order-container">
+              <% order.product.forEach((product) => { %>
+                <div class="product-box product-container pl-3 ">
+                  <% if (product.productId) { %>
+                  <h5><%= product.productId.productName %></h5>
+                  <img class="order-image"src="/img/<%= product.productId.image[0].filename %>" width="90px" height="90px">
+                  <p>Description: <%= product.productId.description %></p>
+                  <p>Order Status: <%= product.orderStatus %></p>
+                  <p>Order Rate : <%= order.totalAmount %></p>
+                  <p>Product Rate : <%= product.productAmount * product.quantity %></p>
+              
+                <!----  <% if (product.productId.offerprice && product.productId.offerprice > 0) { %>
+                    <p>Order Rate : <%= product.productId.offerprice * product.quantity  %></p>
+                <% } else { %>
+                    <p>Order Rate : <%= product.productId.productprice * product.quantity  %></p>
+                <% } %>----->
+                <% if (order.paymentStatus === 'pending' && order.paymentMethod === 'onlinePayment') { %>
+                  <!-- Display Pay Now button -->
+                  <form action="/paynow" method="POST">
+                    <input type="hidden" name="orderId" value="<%= order._id %>">
+                    <input type="hidden" name="productId" value="<%= product.productId._id %>">
+                    <button type="submit" class="btn btn-primary mb-2 pay-now-btn">Pay Now</button>
+                </form>
+                  <% } %>
+                    <a href="/orderdetail?id=<%= order._id %>&productId=<%= product.productId._id %>" class="btn btn-danger mb-2 view-order-btn">View Order</a>
+                </div>
+                <%  } %>
+              <% }); %> 
+            </div>
+          <% }); %>
+        </div>
+        <div class="pagination-container">
+          <ul class="pagination">
+              <% if (prevPage !== null) { %>
+                  <li class="page-item">
+                      <a class="page-link" href="?page=<%= prevPage %>" aria-label="Previous">
+                          <span aria-hidden="true">&laquo; Prev</span>
+                      </a>
+                  </li>
+              <% } %>
+              
+              <% const displayRange = 1; // Number of page numbers to display on each side of the current page %>
+              <% const startPage = Math.max(1, currentPage - displayRange); %>
+              <% const endPage = Math.min(totalPages, startPage + displayRange * 2); %>
+              
+              <% for (let j = startPage; j <= endPage; j++) { %>
+                  <li class="page-item <%= j === currentPage ? 'active' : '' %>">
+                      <a class="page-link" href="?page=<%= j %>"><%= j %></a>
+                  </li>
+              <% } %>
+      
+              <% if (nextPage !== null) { %>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<%= Math.min(nextPage, totalPages) %>" aria-label="Next">
+                        <span aria-hidden="true">Next &raquo;</span>
+                    </a>
+                </li>
+            <% } %>
+            
+          </ul>
+      </div>
+      
+        </div>
+
+      </div>
+      
+    </div>
+    
+ 
+
+<%- include('../layout/footer.ejs') %>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    // Fetch payment order details from the backend and initiate Razorpay payment
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            const payNowButtons = document.querySelectorAll('.pay-now-btn');
+            
+            payNowButtons.forEach(button => {
+                button.addEventListener('click', async (event) => {
+                    event.preventDefault();
+                    const orderId = button.parentElement.querySelector('input[name="orderId"]').value;
+                    const productId = button.parentElement.querySelector('input[name="productId"]').value;
+                  console.log(orderId,productId)
+                    // Fetch payment order details from the backend
+                    const response = await fetch('/failed-payments', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            orderId: orderId,
+                            productId: productId
+                        })
+                    });
+
+                    if (response.ok) {
+                        const orderData = await response.json();
+                        console.log(orderData);
+
+                        // Initialize Razorpay checkout options
+                        const options = {
+                            key: 'rzp_test_NG5lzT2e7Wq9k0', // Replace with your Razorpay key
+                            amount: orderData.amount, // Order amount in paisa
+                            currency: 'INR',
+                            order_id: orderData.id,
+                            name: 'Vougue Vista',
+                            description: 'Payment for Order',
+                            handler: function (response) {
+                                console.log(response); // Handle successful payment
+                                alert('Payment successful!'); // Show success message
+                                button.style.display = 'none'; // Add this line to hide the button
+
+                                // Optionally, update UI or perform other actions after payment success
+                            },
+                            theme: {
+                                color: '#ca2b78'
+                            }
+                        };
+
+                        // Initialize Razorpay checkout with the options
+                        const rzp = new Razorpay(options);
+                        rzp.open();
+                    } else {
+                        console.error('Error:', response.status);
+                        alert('Error processing payment');
+                    }
+                });
+            });
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again later.');
+        }
+    });
+</script>

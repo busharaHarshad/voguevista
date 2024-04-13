@@ -1,0 +1,142 @@
+<%- include('../layout/adminheader.ejs') %>
+<div class="main-content">
+  <!---sidebar-->
+<div class="sidebar">
+    <div class="sidebar-buttons">
+      <a href="/admin/home"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-chess-board"></i>  Dashboard</button></a>
+      <a href="/admin/customer"><button type="button" class="buttonside btn-block active-linking text-white"><i class="fa-solid fa-users"></i>   Customers</button></a>
+      <a href="/admin/product"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-briefcase"></i>   Products</button></a>
+      <a href="/admin/order"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-file"></i>   Orders</button></a>
+      <a href=""><button type="button" class="buttonside btn-block"><i class="fa-regular fa-image"></i>  Banner Management</button></a>
+      <a href="/admin/coupon"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-star"></i>       Coupon Management</button></a>
+      <a href="/admin/salereport"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-chart-simple"></i>  Sales Report</button></a>
+      <a href="/admin/offer"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-user-tie"></i>        Offer</button></a>
+      <a href="/admin/category"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-list"></i>        Category</button></a>
+      <a href=""><button type="button" class="buttonside  btn-block"><i class="fa-solid fa-gear"></i>   Settings</button>
+      <a href="/admin/logout"><button type="button" class="buttonside  btn-block"><i class="fa-solid fa-right-from-bracket"></i>   Logout</button></a>
+    
+      </div>
+  </div>
+  
+<div class=" container-table mt-5">
+  <!----search bar-->
+  <div class="search-area col-5">
+    <form class="form-inline my-2 my-lg-0">
+      <div class="input-group search-input">
+        <input class="form-control" type="text" placeholder="Search for your choices" name="search">
+        <div class="input-group-append">
+          <span class="input-group-text searchlen">
+            <button type="submit" class="btn btn-link d-md-inline" aria-label="Search">
+              <i class="fa-solid fa-magnifying-glass text-dark" name="search"></i>
+            </button>
+          </span>
+        </div>
+      </div>
+    </form>
+  </div>
+  
+   <!----table--------->
+    <div class="body-table">
+    <table class="table">
+<thead class="headertable">
+        <tr>
+            <th scope="col">S.NO</th>
+            <th scope="col">NAME</th>
+            <th scope="col">EMAIL</th>
+            <th scope="col">MOBILE</th>
+            <th scope="col">STATUS</th>
+            <th scope="col"> </th>
+        </tr>
+</thead>
+<tbody>
+  <% let serialNumber = 1; %>
+  <% user.forEach(user => { %>
+    <tr>
+      <td scope="row"><%= serialNumber %></td>
+      <td><%= user.name %></td>
+      <td><%= user.email %></td>
+      <td><%= user.mobileno %></td>
+      <td><%= user.blocked ? 'Blocked' : 'Active' %></td>
+      <td>
+        <form id="blockForm_<%= user.id %>" method="post" action="/admin/block/<%= user.id %>" onsubmit="return confirmBlock(this);">
+          <button type="submit" class="btn btn-secondary" data-username="<%= user.name %>" data-action="<%= user.blocked ? 'Unblock' : 'Block' %>">
+            <%= user.blocked ? 'Unblock' : 'Block' %>
+          </button>
+        </form>
+      </td>
+    </tr>
+    <% serialNumber++; %>
+  <% }); %>
+</tbody>
+       </table>
+       
+          
+       <div class="pagination-container">
+        <ul class="pagination">
+            <% if (prevPage !== null) { %>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<%= prevPage %>&search=<%= search %>" aria-label="Previous">
+                        <span aria-hidden="true">&laquo; Prev</span>
+                    </a>
+                </li>
+            <% } %>
+            
+            <% const displayRange = 1; // Number of page numbers to display on each side of the current page %>
+            <% const startPage = Math.max(1, currentPage - displayRange); %>
+            <% const endPage = Math.min(totalPages, startPage + displayRange * 2); %>
+            
+            <% for (let j = startPage; j <= endPage; j++) { %>
+                <li class="page-item <%= j === currentPage ? 'active' : '' %>">
+                    <a class="page-link" href="?page=<%= j %>&search=<%= search %>"><%= j %></a>
+                </li>
+            <% } %>
+    
+            <% if (nextPage !== null) { %>
+              <li class="page-item">
+                  <a class="page-link" href="?page=<%= Math.min(nextPage, totalPages) %>&search=<%= search %>" aria-label="Next">
+                      <span aria-hidden="true">Next &raquo;</span>
+                  </a>
+              </li>
+          <% } %>
+          
+        </ul>
+    </div>
+    
+  </div>
+  </div>
+</div >
+  <script>
+    function confirmBlock(form) {
+      const userName = form.querySelector('[data-username]').getAttribute('data-username');
+      const action = form.querySelector('[data-action]').getAttribute('data-action');
+  
+      toastr.options = {
+        closeButton: true,
+        progressBar: true,
+        positionClass: 'toast-top-center',
+        timeOut: '0',
+        backgroundColor: '#ffff',
+      };
+  
+      toastr.success(`Are you sure you want to ${action.toLowerCase()} ${userName}?`, 'Confirmation', {
+        timeOut: 0,
+        extendedTimeOut: 0,
+        closeButton: true,
+        tapToDismiss: false,
+        closeOnHover: false,
+        onclick: function () {
+          // If user clicks OK, submit the form
+          const confirmation = confirm(`Are you sure you want to ${action.toLowerCase()} ${userName}?`);
+          if (confirmation) {
+            form.submit();
+          }
+        },
+      });
+  
+      // Prevent the form from submitting automatically
+      return false;
+    }
+  </script>
+  
+
+<%- include('../layout/adminfooter.ejs') %>

@@ -1,0 +1,266 @@
+<%- include('../layout/header.ejs') %>
+
+<div class="d-flex" id="wrapper">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="username-box">
+            <p class="username-text pt-3 pl-5"> <i class="fa-regular fa-user"></i> <%= user.name %></p>
+        </div>
+        <a href="/profile" class="btn btn-light btn-block btn-sidebar pt-3">Account Overview</a>
+        <a href="/address" class="btn btn-light btn-block btn-sidebar ">Manage Address</a>
+        <a href="/order" class="btn btn-light btn-block btn-sidebar sidebar-link  pt-3">Orders</a>
+        <a href="/wishlist" class="btn btn-light btn-block btn-sidebar  pt-3">Wishlist</a>
+        <a href="/wallet" class="btn btn-light btn-block btn-sidebar pt-3">Wallet</a>
+    </div>
+    <!-- /#sidebar-wrapper -->
+
+    <!-- Page Content -->
+    <div class="pl-4">
+        <h1>Order Detail</h1>
+        <div class="product-box product-container pl-3 ">
+            <button id="downloadPdfBtn" class="btn btn-success mb-2 mt-2">Download Invoice</button>
+
+            <img class="order-image pt-3" src="/img/<%= product.productId.image[0].filename %>" width="90px"
+                height="90px">
+            <p>Product Name: <%= product.productId.productName %></p>
+            <p>Product Description: <%= product.productId.description %></p>
+
+            <p>Product Quantity: <%= product.quantity %></p>
+            <% if (order.address) { %>
+            <h2>Delivery Address</h2>
+            <p>Address: <%= order.address.address %></p>
+            <p>City: <%= order.address.city %></p>
+            <p>District: <%= order.address.district %></p>
+            <p>State: <%= order.address.state %></p>
+            <p>pin code: <%= order.address.pincode%></p>
+            <p>Order Rate : <%= order.totalAmount %></p>
+                  <p>Product Rate : <%= product.productAmount * product.quantity %></p>
+              
+            <!-- Add other address fields as needed -->
+             <!-- Check if there is an offer price for the product -->
+           <!---  <% if (product.productId.offerprice && product.productId.offerprice > 0) { %>
+               
+                <p>Price: <%= product.productId.offerprice * product.quantity  %></p>
+            <% } else { %>
+               
+                <p>Price: <%= product.productId.productprice * product.quantity  %></p>
+            <% } %>--->
+            <p>Payment Status:<%= order.paymentStatus %></p>
+            <h6>Status:</h6> <p class="order-status text-success"><%= product.orderStatus %></p>
+           <% if (product.orderStatus === 'Delivered') { %>
+            <button class="return-order-btn btn btn-primary mb-2" data-product-id="<%= product.productId._id %>"
+                data-order-id="<%= order._id %>">Return</button>
+                <!-- Add HTML code for the modal dialog box -->
+<div id="returnReasonModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Select Return Reason</h2>
+      <form id="returnReasonForm">
+        <label for="reason">Reason:</label>
+        <select id="reason" name="reason">
+          <option value="Wrong item received">Wrong item received</option>
+          <option value="Item damaged">Item damaged</option>
+          <option value="Changed mind">Changed mind</option>
+          <!-- Add more options as needed -->
+        </select>
+        <button type="submit" class="btn-success">Submit</button>
+      </form>
+    </div>
+  </div>
+  
+            <% } else if (product.orderStatus !== 'cancelled'&& product.orderStatus !== 'returned') { %>
+            <button class="cancel-order-btn btn btn-danger mb-2" data-product-id="<%= product.productId._id %>"
+                data-order-id="<%= order._id %>">Cancel Order</button>
+            <% } %>
+
+
+            <% } else { %>
+            <p>No shipping address available for this order.</p>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<%- include('../layout/footer.ejs') %>
+<!--<script>
+    $(document).ready(function () {
+        $('.cancel-order-btn').click(function () {
+            var button = $(this); // Store reference to the button
+
+            var productId = button.data('product-id');
+            var orderId = button.data('order-id');
+
+            // Make an AJAX request to the server with productId and orderId
+            fetch('/cancel-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    productId: productId,
+                    orderId: orderId
+                })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error cancelling order');
+                    }
+
+                    // Parse the response JSON
+                    return response.json();
+                })
+                .then(data => {
+                    // Update the UI with the new order status
+                    $('.order-status').text('cancelled');
+                    // Hide the button after successful cancellation
+                    button.hide();
+                })
+                .catch(error => {
+                    console.error('Error cancelling order:', error);
+                    // Optionally, handle the error here
+                    // For example, you can display an error message to the user
+                    alert('Failed to cancel order. Please try again later.');
+                });
+        });
+    });
+</script>
+-->
+<script>
+    // Function to download PDF invoice
+    function downloadPdf() {
+        // Assuming you have an API endpoint to generate the PDF invoice
+        const orderId = '<%= order._id %>'; // Get the order ID
+
+        // Construct the download URL
+        const downloadUrl = `/download-invoice/${orderId}`; // Adjust the URL as per your backend route
+
+        // Open a new window to download the PDF
+        window.open(downloadUrl, '_blank');
+    }
+
+    // Attach click event listener to the download button
+    document.getElementById('downloadPdfBtn').addEventListener('click', downloadPdf);
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('.cancel-order-btn').click(function () {
+            var button = $(this); // Store reference to the button
+
+            if (confirm("Are you sure you want to cancel your order?")) {
+           
+            var productId = button.data('product-id');
+            var orderId = button.data('order-id');
+
+            // Make an AJAX request to the server with productId and orderId
+            fetch('/cancel-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    productId: productId,
+                    orderId: orderId
+                })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error cancelling order');
+                    }
+
+                    // Parse the response JSON
+                    return response.json();
+                })
+                .then(data => {
+                    // Update the UI with the new order status
+                    $('.order-status').text(data.orderStatus);
+                    // Hide the button after successful cancellation
+                    button.hide();
+                })
+                .catch(error => {
+                    console.error('Error cancelling order:', error);
+                    // Optionally, handle the error here
+                    // For example, you can display an error message to the user
+                    alert('Failed to cancel order. Please try again later.');
+                });
+            }
+        });
+         // Function to show the modal
+  function showModal() {
+    var modal = document.getElementById('returnReasonModal');
+    modal.style.display = 'block';
+  }
+
+  // Function to hide the modal
+  function hideModal() {
+    var modal = document.getElementById('returnReasonModal');
+    modal.style.display = 'none';
+  }
+
+        $('.return-order-btn').click(function () {
+            showModal();
+  });
+  $('#returnReasonForm').submit(function (event) {
+    event.preventDefault(); // Prevent default form submission
+
+    var returnReason = $('#reason').val(); // Get the selected reason
+console.log(returnReason)
+    // Get product and order IDs from the button's data attributes
+    var productId = $('.return-order-btn').data('product-id');
+    var orderId = $('.return-order-btn').data('order-id');
+
+
+           // var button = $(this); // Store reference to the button
+
+           // var productId = button.data('product-id');
+            //var orderId = button.data('order-id');
+
+            // Make an AJAX request to the server with productId and orderId
+            fetch('/return-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    productId: productId,
+                    orderId: orderId,
+                    returnReason: returnReason
+                })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error returning order');
+                    }
+
+                    // Parse the response JSON
+                    return response.json();
+                })
+                .then(data => {
+                    // Update the UI with the new order status
+                    $('.order-status').text(data.orderStatus);
+                    // Optionally, update UI to reflect return status
+                    // For example, show a message that the order has been returned
+                    alert('Order has been returned successfully.');
+                    // Hide the button after successful return
+                   // button.hide();
+                   hideModal();
+        // Hide the button after successful return
+        $('.return-order-btn').hide();
+  
+                })
+                .catch(error => {
+                    console.error('Error returning order:', error);
+                    // Optionally, handle the error here
+                    // For example, you can display an error message to the user
+                    alert('Failed to return order. Please try again later.');
+                    hideModal();
+                });
+                window.onclick = function (event) {
+    var modal = document.getElementById('returnReasonModal');
+    if (event.target == modal) {
+      hideModal();
+    }
+};
+        });
+    });
+</script>

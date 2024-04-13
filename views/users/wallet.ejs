@@ -1,0 +1,127 @@
+<%- include('../layout/header.ejs') %>
+
+<div>
+
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="username-box">
+                <p class="username-text  pt-3 pl-5"> <i class="fa-regular fa-user"></i> <%= user.name %></p>
+            </div>
+            <a href="/profile" class="btn btn-light btn-block btn-sidebar  pt-3">Account Overview</a>
+            <a href="/address" class="btn btn-light btn-block btn-sidebar pt-3">Manage Address</a>
+            <a href="/order" class="btn btn-light btn-block btn-sidebar  pt-3">Orders</a>
+            <a href="/wishlist" class="btn btn-light btn-block btn-sidebar  pt-3">Wishlist</a>
+            <button id="show-add-funds" class="btn btn-light btn-block btn-sidebar sidebar-link  pt-3">Wallet</button>
+        </div>
+        <!-- /#sidebar-wrapper -->
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+                <h2>Your Wallet</h2>
+                <div class="wallet-balance">
+                    <p>Your current wallet balance:<b><span id="wallet-balance-value"><%= wallet.balance %></span></b></p>
+                    <div id="add-funds-container">
+                        <div id="add-funds-message">
+                            <form id="add-funds-form">
+                                <label for="amount">Add Money To Wallet:</label>
+                                <input type="number" id="amount" name="amount" required>
+                                <button type="submit" class="btn probuto">Pay Now</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="wallet-history">
+                    <h2>Wallet History</h2>
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Transaction Type</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="wallet-history-table-body">
+                            <% wallet.transactionHistory.forEach(transaction => { %>
+                                <tr>
+                                    <td><%= transaction.timestamp.toDateString() %></td>
+                                    <td><%= transaction.type %></td>
+                                    <td><%= transaction.amount %></td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- /#page-content-wrapper -->
+    </div>
+</div>
+
+<%- include('../layout/footer.ejs') %>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    const showAddFundsButton = document.getElementById('show-add-funds');
+    const addFundsMessage = document.getElementById('add-funds-message');
+    const walletBalanceValue = document.getElementById('wallet-balance-value');
+
+
+    showAddFundsButton.addEventListener('click', () => {
+        addFundsMessage.style.display = 'block';
+    });
+
+    document.getElementById('add-funds-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const amount = document.getElementById('amount').value;
+
+        // Call backend to create Razorpay order
+        const response = await fetch('/create-wallet', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount }),
+        });
+        
+        const data = await response.json();
+        walletBalanceValue.textContent = data.balance; // Assuming data.balance contains the wallet balance
+        console.log(walletBalanceValue.textContent)
+        // Initiate Razorpay payment
+        const options = {
+            key: 'rzp_test_NG5lzT2e7Wq9k0',
+            amount: amount * 100, // Amount in paisa
+            currency: 'INR',
+            order_id: data.orderId,
+            handler: function (response) {
+                console.log(response); // Handle successful payment
+                alert('Payment successful!'); // Show success message
+                // You can perform further actions (e.g., update wallet balance) here
+                const transactionData = {
+        amount: amount, // The amount that was added to the wallet
+        // Type of transaction (e.g., deposit, withdrawal)
+         // Current timestamp
+    };
+
+    // Send the transaction data to the backend to save in the wallet's transaction history
+    fetch('/save-wallet-transaction', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(transactionData),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Transaction saved:', data);
+        // Optionally update UI or perform other actions
+    })
+    .catch(error => {
+        console.error('Error saving transaction:', error);
+        // Handle error scenario if needed
+    });
+
+    // Clear input field or perform other actions as needed
+    amountInput.value = '';
+            },
+        };
+        const razorpayInstance = new Razorpay(options);
+        razorpayInstance.open();
+    });
+</script>

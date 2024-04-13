@@ -1,0 +1,402 @@
+<%- include('../layout/adminheader.ejs') %>
+
+<div class="main-content">
+<div class="sidebar">
+    <div class="sidebar-buttons">
+      <a href="/admin/home" ><button type="button" class="buttonside btn-block "><i class="fa-solid fa-chess-board"></i>  Dashboard</button></a>
+      <a href="/admin/customer"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-users"></i>   Customers</button></a>
+      <a href="/admin/product"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-briefcase"></i>   Products</button></a>
+      <a href="/admin/order"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-file"></i>   Orders</button></a>
+      <a href=""><button type="button" class="buttonside btn-block"><i class="fa-regular fa-image"></i>  Banner Management</button></a>
+      <a href="/admin/coupon"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-star"></i>       Coupon Management</button></a>
+      <a href="/admin/salereport"><button type="button" class="buttonside btn-block active-linking text-white"><i class="fa-solid fa-chart-simple"></i>  Sales Report</button></a>
+      <a href="/admin/offer"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-user-tie"></i>        Offer</button></a>
+      <a href="/admin/category"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-list"></i>        Category</button></a>
+      <a href=""><button type="button" class="buttonside  btn-block"><i class="fa-solid fa-gear"></i>   Settings</button>
+      <a href="/admin/logout"><button type="button" class="buttonside  btn-block"><i class="fa-solid fa-right-from-bracket"></i>   Logout</button></a>
+    
+    </div>
+  </div>
+    <div class="container-table  mt-5">
+        <div class="row align-items-center">
+            <div class="col-md-8 col-lg-10">
+                <h2 class="mb-4">Sales Report</h2>
+            </div>
+            <div class="col-md-4 col-lg-2 text-right  text-right d-flex align-items-center justify-content-end">
+                <!-- Print button -->
+                <button class="btn btn-success mr-2" onclick="printDetails()">Print Report</button>
+                <button class="btn btn-success mr-2" onclick="exportToExcel()">Generate Excel</button>
+                <!-- Example buttons for filter options -->
+               <button class="btn btn-success mr-2" onclick="applyFilter('day')">Day</button>
+               <button class="btn btn-success mr-2" onclick="applyFilter('week')">Week</button>
+               <button class="btn btn-success mr-2" onclick="applyFilter('month')">Month</button>
+               <button class="btn btn-success mr-2" onclick="applyFilter('year')">year</button>
+
+            </div>
+        </div>
+      <div class="row">
+        <div class="col-md-3 col-lg-2 mt-2 equal-height-cards">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Number of Orders</h5>
+                    <p class="card-text totalOrders" id="totalOrders"><%= orders.length %></p>
+                    <h5 class="card-title">Total Number of Products</h5>
+                    <p class="card-text totalProducts"id="totalProducts"">
+                        <% let totalProducts = 0; %>
+                        <% orders.forEach(order => { %>
+                            <% totalProducts += order.product.length; %>
+                        <% }); %>
+                        <%= totalProducts %>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-lg-2 mt-2 equal-height-cards">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Online Payment Orders</h5>
+                    <p class="card-text onlinePaymentOrders" id="onlinePaymentOrders">
+                        <% let onlinePaymentsCount = 0; %>
+                        <% orders.forEach(order => { %>
+                            <% if (order.paymentMethod === 'onlinePayment') { %>
+                                <% onlinePaymentsCount++; %>
+                            <% } %>
+                        <% }); %>
+                        <%= onlinePaymentsCount %>
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+
+        <div class="col-md-3 col-lg-2 mt-2 equal-height-cards">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Cash on Delivery Orders</h5>
+                    <p class="card-text cashOnDeliveryOrders" id="cashOnDeliveryOrders">
+                        <% let cashOnDeliveryCount = 0; %>
+                        <% orders.forEach(order => { %>
+                            <% if (order.paymentMethod === 'cashOnDelivery') { %>
+                                <% cashOnDeliveryCount++; %>
+                            <% } %>
+                        <% }); %>
+                        <%= cashOnDeliveryCount %>
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-lg-2 mt-2 equal-height-cards">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Wallet Payment Orders</h5>
+                    <p class="card-text walletPaymentOrders" id="walletPaymentOrders">
+                        <% let walletPaymentCount = 0; %>
+                        <% orders.forEach(order => { %>
+                            <% if (order.paymentMethod === 'wallet') { %>
+                                <% walletPaymentCount++; %>
+                            <% } %>
+                        <% }); %>
+                        <%= walletPaymentCount %>
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-lg-2 mt-2 equal-height-cards">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Order Amount</h5>
+                    <p class="card-text totalOrderAmount" id="totalOrderAmount">
+                        <% let totalOrderAmount = 0; %>
+                        <% orders.forEach(order => { %>
+                            <% totalOrderAmount += order.totalAmount; %>
+                        <% }); %>
+                        <%= totalOrderAmount %>
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-lg-2 mt-2 equal-height-cards">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Discount</h5>
+                    <p class="card-text totalDiscount" id="totalDiscount">
+                        <% let totalDiscount = 0; %>
+                        <% orders.forEach(order => { %>
+                            <% totalDiscount += order.discount; %>
+                        <% }); %>
+                        <%= totalDiscount %>
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+            <!-- Add more cards for other metrics (e.g., cash on delivery, wallet, total amount, total discount) -->
+        </div>
+        
+        <div class="col-md-12 mt-4 ">
+            <div class="align-items-center text-right">
+            <input type="date" id="startDate" class="action">
+            <input type="date" id="endDate" class="action">
+            <button class="btn btn-success mr-2" onclick="applyCustomFilter()">Apply Custom</button>
+            </div>
+            <h3>Delivered Orders</h3>
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Product ID</th>
+                                <th>Product Name</th>
+                                <th>Product Price</th>
+                                <th>offer</th>
+                                <th>difference</th>
+                                <th>discount</th>
+                                <th>Payment Method</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th class="action">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="tbody" id="tbody">
+                            <% orders.forEach(order => { %>
+                                <% order.product.forEach(product => { %>
+                                    <tr>
+                                        <td><%= product.productId._id %></td>
+                                        <td><%= product.productId.productName %></td>
+                                        <td><%= order.productPrice %></td>
+                                        <td><%= order.Offeramount %></td>
+                                        <td><%= order.productPrice-order.Offeramount %></td>
+                                        <td><%= order.discount %></td>
+                                        <td><%= order.paymentMethod %></td>
+                                        <td><%= product.orderStatus %></td>
+                                        <td><%= order.createdAt.toDateString() %></td>
+                                        <td class="action">
+                                            <a href="/admin/report?id=<%= order._id %>&productId=<%= product.productId._id %>" class="btn active-linking">View</a>
+                                        </td>
+                                        
+                                    </tr>
+                                <% }); %>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                    
+            </div>
+        </div>
+        
+  </div>
+  </div>
+
+<%- include('../layout/adminfooter.ejs') %>
+<script>
+    function printDetails() {
+        window.print();
+    }
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+
+<script>
+    function exportToExcel() {
+        const table = document.querySelector('.table'); // Select the table element
+        const rows = Array.from(table.querySelectorAll('tr')); // Get all rows in the table
+
+        // Create a new workbook and worksheet
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.table_to_sheet(table);
+
+        // Exclude columns by deleting the corresponding properties from the worksheet object
+        ws['!cols'] = [
+            { hidden: true }, // Adjust column widths as needed
+            { wch: 20 },
+            { wch: 20 },
+            { wch: 20 },
+            { wch: 20 },
+            { wch: 20 },
+            { wch: 20 },
+            { hidden: true },
+            { hidden: true }, // Hide the Action column
+            { hidden: true }, // Hide the Date column
+           
+        ];
+
+        // Add the worksheet to the workbook
+        XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+
+        // Generate a download link for the Excel file
+        const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const blob = new Blob([wbout], { type: 'application/octet-stream' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'sales_report.xlsx';
+        a.click();
+
+        // Clean up
+        setTimeout(() => {
+            URL.revokeObjectURL(url);
+        }, 100);
+    }
+</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    
+    function applyFilter(filterType) {
+    console.log(filterType);
+    $.ajax({
+        type: 'GET',
+        url: '/admin/sales-report',
+        data: { filter: filterType }, // Pass the filter option to the backend
+        success: function(response) {
+            if (response.hasOwnProperty('order')) {
+                // Update cards data
+               updateCards(response.order);
+                
+                // Update table data
+                updateTable(response.order);
+                
+                // Update other elements as needed
+                //updateOtherElements(response.order);
+                
+                // Display the selected filter
+                $('#selectedFilter').text(filterType.charAt(0).toUpperCase() + filterType.slice(1)); // Capitalize the first letter
+            } else {
+                console.log('Error: No order data found in the response.');
+            }
+        },
+        error: function(error) {
+            console.log('Error:', error);
+        }
+    });
+}
+function updateTable(orders) {
+    const tableBody = $('#tbody');
+    tableBody.empty(); // Clear existing data in the table body
+
+    // Filter orders to include only those with product status "Delivered"
+    const deliveredOrders = orders.filter(order =>
+        order.product.some(product => product.orderStatus === 'Delivered')
+    );
+// Initialize variables to store total amounts
+let totalProductAmount = 0;
+    let totalOfferAmount = 0;
+let totalDiscount=0;
+let totalDifference=0;
+    // Iterate through the filtered orders and append rows to the table
+    deliveredOrders.forEach(order => {
+         order.product.forEach(product => {
+            if (product.orderStatus === 'Delivered') { // Check if the product status is "Delivered"//Offeramount
+            totalProductAmount += order.productPrice;
+                totalOfferAmount += order.Offeramount;
+                const difference = order.productPrice - order.Offeramount; // Calculate the difference
+            totalDiscount +=order.discount;
+            totalDifference +=difference;
+                const row = `<tr>
+                    <td>${product._id}</td>
+                    <td>${product.productId.productName}</td>
+                    <td>${order.productPrice}</td>
+                    <td>${order.Offeramount}</td>
+                    <td>${difference}</td>
+                    <td>${order.discount}</td>
+                    <td>${order.paymentMethod}</td>
+                    <td>${product.orderStatus}</td>
+                    <td>${new Date(order.createdAt).toDateString()}</td>
+                    <td><a href="/admin/report?id=${order._id}&productId=${product.productId._id}" class="btn active-linking">View</a></td>
+                </tr>`;
+                tableBody.append(row);
+            }
+        });
+    });
+    const totalRow = `<tr>
+            <td colspan="2">Total</td>
+            <td>${totalProductAmount}</td>
+            <td>${totalOfferAmount}</td>
+            <td>${totalDifference}</td>
+            <td>${totalDiscount}</td>
+            <td colspan="4"></td> <!-- Empty cells for other columns -->
+        </tr>`;
+        tableBody.append(totalRow);
+
+}
+function updateCards(orders) {
+    // Filter orders with status 'Delivered'
+    const deliveredOrders = orders.filter(order => {
+        return order.product.some(product => product.orderStatus === 'Delivered');
+    });
+
+    // Update total number of orders card
+    $('#totalOrders').text(deliveredOrders.length);
+
+    // Update total number of products card
+    let totalProducts = 0;
+    deliveredOrders.forEach(order => {
+        totalProducts += order.product.length;
+    });
+    $('#totalProducts').text(totalProducts);
+
+    // Update other cards similarly for different metrics
+    let onlinePaymentsCount = 0;
+    let cashOnDeliveryCount = 0;
+    let walletPaymentCount = 0;
+    let totalOrderAmount = 0;
+    let totalDiscount = 0;
+
+    deliveredOrders.forEach(order => {
+        // Count orders based on payment method
+        if (order.paymentMethod === 'onlinePayment') {
+            onlinePaymentsCount++;
+        } else if (order.paymentMethod === 'cashOnDelivery') {
+            cashOnDeliveryCount++;
+        } else if (order.paymentMethod === 'wallet') {
+            walletPaymentCount++;
+        }
+
+        // Calculate total order amount
+        totalOrderAmount += order.totalAmount;
+
+        // Calculate total discount
+        totalDiscount += order.discount;
+    });
+
+    // Update card texts
+    $('#onlinePaymentOrders').text(onlinePaymentsCount);
+    $('#cashOnDeliveryOrders').text(cashOnDeliveryCount);
+    $('#walletPaymentOrders').text(walletPaymentCount);
+    $('#totalOrderAmount').text(totalOrderAmount);
+    $('#totalDiscount').text(totalDiscount);
+}
+
+function applyCustomFilter() {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+
+    // Check if both start date and end date are provided
+    if (startDate && endDate) {
+        console.log(startDate)
+        console.log(endDate)
+        $.ajax({
+            type: 'GET',
+            url: '/admin/sales-report',
+            data: { startDate: startDate, endDate: endDate }, // Pass custom date range to the backend
+            success: function (response) {
+                if (response.hasOwnProperty('order')) {
+                    // Update cards data and table data
+                    updateTable(response.order);
+                    // Update other elements as needed
+                } else {
+                    console.log('Error: No order data found in the response.');
+                }
+            },
+            error: function (error) {
+                console.log('Error:', error);
+            }
+        });
+    } else {
+        console.log('Please select both start date and end date.');
+    }
+}
+
+</script>
+
+

@@ -1,0 +1,179 @@
+    <%- include('../layout/header.ejs') %>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <!-- Toggler/collapsible Button for small screens for the secondary navbar -->
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavSecondary" 
+                aria-controls="navbarNavSecondary" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+    
+            <!-- Navbar links for the secondary navbar -->
+            <div class="collapse navbar-collapse" id="navbarNavSecondary">
+                <div class="container d-flex flex-wrap justify-content-center">
+                    <% category.forEach(category => { %>
+                        <a class="text-dark col-md-1 col-lg-2" href=""><%= category.categoryname %></a>
+                    <% }) %>            
+                </div>
+            </div>
+        </div>
+        </nav>
+        <nav class="navbar  navbar-light bg-light">
+            <div class="container">
+                <!-- Toggler/collapsible Button for small screens for the secondary navbar -->
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavSecondary" 
+                    aria-controls="navbarNavSecondary" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>Filter
+                </button>
+        
+                <!-- Navbar links for the secondary navbar -->
+                <div class="row justify-content-end">
+                    <div class=" sortback col-md-6 ">
+                      <div class="sorting-options text-right">
+                        <form class="form-inline my-2 my-lg-0" id="sortForm" style="border: none;">
+                            <input type="hidden" id="filterOptions" name="filterOptions" value="<%= JSON.stringify(filterOptions) %>">
+                            <input type="hidden" id="search" name="search" value="<%= search %>">
+                          <div class="input-group">
+                            <label for="sortDropdown" class="sorting-label mr-5 pr-5"></label>
+                            <select class="form-control" id="sortDropdown" name="sort" style="border: none;">
+                              <option value="default" selected disabled hidden>Sorting</option>
+                              <option value="productprice_asc">Low to High</option>
+                              <option value="productprice_desc">High to Low</option>
+                              <option value="createdAt_desc">Newest</option>
+                            </select>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+            </div>
+        </nav>
+        
+</header>
+
+<div class="container">
+    
+   
+        <div class="container mt-3" id="filterFormContainer" style="display: none;">
+            <form id="filterForm" action="/" method="GET"> <!-- Update the action and method -->
+                <input type="hidden" id="sort" name="sort" value="<%= sort %>">
+                <input type="hidden" id="search" name="search" value="<%= search %>">
+            
+                <div class="form-group">
+                    <label>Categories:</label><br>
+                    <% category.forEach(category => { %>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="category_<%= category._id %>" name="categories[]" value="<%= category.categoryname %>">
+                            <label class="form-check-label" for="category_<%= category._id %>"><%= category.categoryname %></label>
+                        </div>
+                    <% }) %>  
+                </div>
+                <div class="form-group">
+                    <label>Product Name:</label><br>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="productStylo" name="products[]" value="Stylo Bug">
+                        <label class="form-check-label" for="productStylo">Stylo Bug</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="productBabyhug" name="products[]" value="Babyhug">
+                        <label class="form-check-label" for="productBabyhug">Babyhug</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="productKinderKids" name="products[]" value="Kinder Kids">
+                        <label class="form-check-label" for="productKinderKids">Kinder Kids</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="productLiAndLi" name="products[]" value="Li&Li">
+                        <label class="form-check-label" for="productLiAndLi">Li&Li</label>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Apply Filter</button>
+            </form>
+        </div>
+    </div>
+    
+  </div>
+  
+  
+<div class="home-page">
+    
+    <div class="container">
+        <div class="row">
+            <% products.forEach(product => { %>
+                <% if(product.stockLeft >= 0) { %>
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            <% if (product.image && product.image.length > 0) { %>
+                                <img src="/img/<%= product.image[0].filename %>" alt="<%= product.productName %>"
+                                    class="card-img-top">
+                            <% } else { %>
+                                <img src="/img/default-image.jpg" alt="Default Image" class="card-img-top">
+                            <% } %>
+                            <div class="card-body">
+                                <h5 class="card-title product-productName"><%= product.productName %></h5>
+                                <p class="card-text product-category"><%= product.category%></p>
+                                <p class="card-text product-description"><%= product.description %></p>
+                                <div class="price-container">
+                                    <% if (product.offerprice > 0) { %>
+                                        <span><p class="card-text product-price"><del>₹<%= product.productprice %></del></p></span>
+                                    <span><p class="card-text product-offer-price text-danger"><b> ₹<%= product.offerprice %></b></p></span>
+                                    <% } else { %>
+                                        <p class="card-text product-price">₹<%= product.productprice %></p>
+                                                <% } %>
+                                </div>
+                                <a href="/productdetail?id=<%= product._id %>" class="btn buy-button">View Product</a>
+                                
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+            <% }) %>
+            
+        </div>
+    </div>
+    <div class="container">
+        <div class="d-flex justify-content-center">
+            <div class="pagination-container">
+                <ul class="pagination">
+                    <% if (prevPage !== null) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=<%= prevPage %>&search=<%= search %>" aria-label="Previous">
+                                <span aria-hidden="true">&laquo; Prev</span>
+                            </a>
+                        </li>
+                    <% } %>
+                    
+                    <% const displayRange = 1; // Number of page numbers to display on each side of the current page %>
+                    <% const startPage = Math.max(1, currentPage - displayRange); %>
+                    <% const endPage = Math.min(totalPages, startPage + displayRange * 2); %>
+                    
+                    <% for (let j = startPage; j <= endPage; j++) { %>
+                        <li class="page-item <%= j === currentPage ? 'active' : '' %>">
+                            <a class="page-link" href="?page=<%= j %>&search=<%= search %>"><%= j %></a>
+                        </li>
+                    <% } %>
+            
+                    <% if (nextPage !== null) { %>
+                      <li class="page-item">
+                          <a class="page-link" href="?page=<%= Math.min(nextPage, totalPages) %>&search=<%= search %>" aria-label="Next">
+                              <span aria-hidden="true">Next &raquo;</span>
+                          </a>
+                      </li>
+                  <% } %>
+                  
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<%- include('../layout/footer.ejs') %>
+<script>
+    document.getElementById('sortDropdown').addEventListener('change', function() {
+      document.getElementById('sortForm').submit();
+    });
+
+    $('.navbar-toggler').click(function() {
+        $('#filterFormContainer').toggle();
+    });
+
+    
+</script>

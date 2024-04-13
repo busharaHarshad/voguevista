@@ -1,0 +1,167 @@
+<%- include('../layout/adminheader.ejs') %>
+
+<div class="main-content">
+    <div class="sidebar">
+        <div class="sidebar-buttons">
+            <a href="/admin/home"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-chess-board"></i> Dashboard</button></a>
+            <a href="/admin/customer"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-users"></i> Customers</button></a>
+            <a href="/admin/product"><button type="button" class="buttonside btn-block active-linking text-white"><i class="fa-solid fa-briefcase"></i> Products</button></a>
+            <a href="/admin/order"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-file"></i> Orders</button></a>
+            <a href=""><button type="button" class="buttonside btn-block"><i class="fa-regular fa-image"></i> Banner Management</button></a>
+            <a href="/admin/coupon"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-star"></i> Coupon Management</button></a>
+            <a href="/admin/salereport"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-chart-simple"></i> Sales Report</button></a>
+            <a href="/admin/offer"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-user-tie"></i>        Offer</button></a>
+            <a href="/admin/category"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-list"></i> Category</button></a>
+            <a href=""><button type="button" class="buttonside btn-block"><i class="fa-solid fa-gear"></i> Settings</button></a>
+            <a href="/admin/logout"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-right-from-bracket"></i> Logout</button></a>
+        </div>
+    </div>
+    <div class="container-table mt-5">
+        <div class="main-content">
+            <div class="container mt-5">
+                <h2>Edit Product</h2>
+                <div class="form-group">
+                    <label>Current Images:</label>
+                    <div class="current-images-container">
+                        <% products.image.forEach((image, index) => { %>
+                            <div class="current-image" id="image-<%= index %>">
+                                <!-- Image display -->
+                                <img src="/img/<%= image.filename %>" alt="<%= image.filename %>" width="50px" height="50px">
+                                <button class="btn btn-primary" onclick="editImage('<%= products._id %>', '<%= index %>')">Edit</button>
+                         
+                                <button class="btn btn-danger" onclick="deleteimage('<%= products._id %>','<%=index %>')">delete</button>
+                             </div>
+                        <% }) %>
+                    </div>
+                </div>
+
+                <form action="" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="productName">Product Name:</label>
+                        <input type="text" class="form-control" id="productName" placeholder="Enter product name" value="<%= products.productName %>" name="productName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Category:</label>
+                        <select class="form-control" id="category" name="category" required>
+                            <option value="" disabled>Select a category</option>
+                            <% category.forEach(category => { %>
+                                <option value="<%= category.categoryname %>" <%= products.category === category.categoryname ? 'selected' : '' %>><%= category.categoryname %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Description:</label>
+                        <input type='text' class='form-control' id='description' placeholder='Enter description' value="<%= products.description %>" name='description' required>
+                    </div>
+                    <!-- Add more input fields as needed -->
+                    <div class="form-group">
+                        <label for="productprice">Product Price:</label>
+                        <input type='text' class='form-control' id='productprice' placeholder='Enter product price' name='productprice' value="<%= products.productprice %>" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="saleprice">Sale Price:</label>
+                        <input type='text' class='form-control' id='saleprice' placeholder='Enter sale price' name='saleprice' value="<%= products.saleprice %>" required>
+                    </div>
+                   
+                    <div class="form-group">
+                        <label for="quantity">Stock Left:</label>
+                        <input type='text' class='form-control' id='stockLeft' placeholder='Enter stockLeft' name='stockLeft' value="<%= products.stockLeft %>" required>
+                    </div>
+                    <!-- For file upload -->
+                    <div class='form-group'>
+                        <label for='image'>Upload Image:</label>
+                        <input type='file' class='form-control-file' name="image" id="imageInput" multiple>
+                    </div>
+                    <div class="preview-container" id="imagePreviewContainer"></div>
+
+    
+                    <input type="hidden" name="id" value="<%= products._id %>">
+                    <!-- Submit button -->
+                    <button type='submit' class='btn addbutn'>Save Changes</button>
+                </form>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../layout/adminfooter.ejs') %>
+<script>
+
+    const deleteimage=async(productId,index)=> {
+  try{
+    if(confirm("are you sure do you want to delete this image ")==true){
+        console.log(productId,index)
+        const response= await axios.post(`/admin/delete-image`,{productId,index})
+        if(response.status===200){
+            console.log("image deleted successfully")
+            const imageContainer= document.getElementById(`image-${index}`)
+            if(imageContainer){
+                imageContainer.remove()
+            }
+        }else{
+            console.log("image delete failed")
+        }
+    }
+  }catch(error){
+    console.log(error.message)
+  }
+}
+
+   
+    const editImage = (productId, index) => {
+        // Trigger file input click event to select a new image
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.multiple = false; // Allow single file selection
+        fileInput.accept = 'image/*'; // Allow only image files
+        fileInput.addEventListener('change', async () => {
+            try {
+                const file = fileInput.files[0];
+                if (file) {
+                    const formData = new FormData();
+                    formData.append('productId', productId);
+                    formData.append('index', index);
+                    formData.append('image', file);
+
+                    const response = await axios.post('/admin/updateProductImage', formData);
+                    if (response.status === 200) {
+                        console.log('Image updated successfully');
+                        // Handle UI update if needed
+                    } else {
+                        console.log('Failed to update image');
+                    }
+                }
+            } catch (error) {
+                console.log(error.message);
+            }
+        });
+        fileInput.click();
+    };
+</script>
+<script>
+    const imageInput = document.getElementById('imageInput');
+    const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+
+    imageInput.addEventListener('change', (event) => {
+        const files = event.target.files;
+
+        // Clear existing previews
+        imagePreviewContainer.innerHTML = '';
+
+        for (const file of files) {
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                const imagePreview = document.createElement('img');
+                imagePreview.src = e.target.result;
+                imagePreview.alt = file.name;
+                imagePreview.className = 'preview-image';
+                imagePreviewContainer.appendChild(imagePreview);
+            };
+
+            reader.readAsDataURL(file);
+        }
+    });
+</script>

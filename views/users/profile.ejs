@@ -1,0 +1,64 @@
+<%- include('../layout/header.ejs') %>
+
+<div >
+
+<div class="d-flex" id="wrapper">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="username-box">
+            <p class="username-text  pt-3 pl-5"> <i class="fa-regular fa-user"></i>   <%= user.name %></p>
+        </div>
+       <a href="/profile" class="btn btn-light btn-block btn-sidebar sidebar-link pt-3">Account Overview</a>
+        <a href="/address" class="btn btn-light btn-block btn-sidebar pt-3">Manage Address</a>
+        <a href="/order" class="btn btn-light btn-block btn-sidebar  pt-3">Orders</a>
+        <a href="/wishlist" class="btn btn-light btn-block btn-sidebar  pt-3">Wishlist</a>
+        <a href="/wallet" class="btn btn-light btn-block btn-sidebar pt-3">Wallet</a>
+    </div>
+    <!-- /#sidebar-wrapper -->
+
+    <!-- Page Content -->
+    <div id="page-content-wrapper" class="flex-grow-1 pl-3">
+        <div class="container-fluid">
+            <h1>User Profile</h1>
+            <form action="" method="POST">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" class="form-control formarea" name="username" value="<%= user.name %>" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control formarea" name="email" value="<%= user.email %>" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="mobileNumber">Mobile Number</label>
+                            <input type="tel" class="form-control formarea" name="mobileno" value="<%= user.mobileno %>" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            
+                            <a href="/profile-edit?id=<%=user._id %>" class="btn btn-secondary probut">Edit Profile</a>
+                            <a href="/changepassword?id=<%=user._id %>" class="btn btn-info probut">Change Password</a>
+                     </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- /#page-content-wrapper -->
+</div>
+</div>
+<% if (passwordChanged) { %>
+    <script>
+        alert('Your password has been changed successfully.');
+    </script>
+<% } %>
+
+<%- include('../layout/footer.ejs') %>

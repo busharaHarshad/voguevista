@@ -1,0 +1,147 @@
+<%- include('../layout/adminheader.ejs') %>
+<div class="main-content">
+<div class="sidebar">
+    <div class="sidebar-buttons">
+      <a href="/admin/home"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-chess-board"></i>  Dashboard</button></a>
+      <a href="/admin/customer"><button type="button" class="buttonside btn-block "><i class="fa-solid fa-users"></i>   Customers</button></a>
+      <a href="/admin/product"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-briefcase"></i>   Products</button></a>
+      <a href="/admin/order"><button type="button" class="buttonside btn-block active-linking text-white"><i class="fa-solid fa-file "></i>   Orders</button></a>
+      <a href=""><button type="button" class="buttonside btn-block"><i class="fa-regular fa-image"></i>  Banner Management</button></a>
+      <a href="/admin/coupon"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-star"></i>       Coupon Management</button></a>
+      <a href="/admin/salereport"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-chart-simple"></i>  Sales Report</button></a>
+      <a href="/admin/offer"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-user-tie"></i>        Offer</button></a>
+      <a href="/admin/category"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-list"></i>        Category</button></a>
+      <a href=""><button type="button" class="buttonside  btn-block"><i class="fa-solid fa-gear"></i>   Settings</button>
+      <a href="/admin/logout"><button type="button" class="buttonside  btn-block"><i class="fa-solid fa-right-from-bracket"></i>   Logout</button></a>
+      </div>
+  </div>
+  
+<div class=" container-table mt-5 pt-5">
+   <div class="body-table">
+    <table class="table">
+<thead class="headertable">
+        <tr>
+            <th scope="col">S.NO</th>
+            <th scope="col">PRODUCT</th>
+            <th scope="col"> USER NAME</th>
+            <th scope="col">TOTAL AMOUNT</th>
+            <th scope="col">PAYMENT METHOD</th>
+            <th scope="col">STATUS</th>
+            <th scope="col">DETAILS</th>
+            <th  scope="col"></th>
+        </tr>
+</thead>
+<tbody>
+  <% let serialNumber = 1; %>
+  <% order.forEach((orderItem) => { %>
+    <% orderItem.product.forEach((product) => { %>
+      <tr>
+        <td><%= serialNumber++ %></td>
+        <td>
+          <% if (product.productId && product.productId.image && product.productId.image.length > 0) { %>
+            <img class="order-image" src="/img/<%= product.productId.image[0].filename %>" width="40px" height="40px">
+          <% } %>
+        </td>
+       <!-- <td><%= orderItem._id %></td>  Printing orderId here -->
+        <td><%= orderItem.userId.name %></td>
+        <td><%= orderItem.productPrice * product.quantity%></td>
+        <td><%= orderItem.paymentMethod %></td>
+        <!--<td><%= product.orderStatus %></td>-->
+        <!-- UpdateOrderStatus.ejs -->
+          <td class="status-cell" data-order-id="<%= orderItem._id %>" data-product-id="<%= product.productId._id %>"><%= product.orderStatus %></td>
+        <td>
+          <div class="dropdown">
+            <button class="dropbtn bg-success">Action</button>
+            <div class="dropdown-content bg-success">
+              <% if (product.productId) { %>
+                <button onclick="updateOrderStatus('Processing', '<%= orderItem._id %>', '<%= product.productId._id %>')">Processing</button>
+                <button onclick="updateOrderStatus('Shipped', '<%= orderItem._id %>', '<%= product.productId._id %>')">Shipped</button>
+                <button onclick="updateOrderStatus('Delivered', '<%= orderItem._id %>', '<%= product.productId._id %>')">Delivered</button>
+                <button onclick="updateOrderStatus('cancelled', '<%= orderItem._id %>', '<%= product.productId._id %>')">cancelled</button>
+                <button onclick="updateOrderStatus('returned', '<%= orderItem._id %>', '<%= product.productId._id %>')">returned</button>
+                <button onclick="updateOrderStatus('placed', '<%= orderItem._id %>', '<%= product.productId._id %>')">placed</button>
+              <% } %>
+            </div>
+          </div>
+        </td>
+        <td>
+          <a href="/admin/orderdetailadmin?id=<%= orderItem._id %>&productId=<%= product.productId._id %>">
+              <i class="fa-solid fa-circle-info text-dark"></i>
+          </a>
+      </td>
+      
+      </tr>
+    <% }); %>
+  <% }); %>
+</tbody>
+</table>
+<div class="pagination-container">
+  <ul class="pagination">
+      
+      <% if (prevPage !== null) { %>
+        <li class="page-item">
+          <a class="page-link" href="?page=<%= prevPage %>" aria-label="Previous">
+            <span aria-hidden="true">&laquo; Prev</span>
+          </a>
+        </li>
+      <% } %>
+      
+      <% const displayRange = 1; // Number of page numbers to display on each side of the current page %>
+      <% const startPage = Math.max(1, currentPage - displayRange); %>
+      <% const endPage = Math.min(totalPages, startPage + displayRange * 2); %>
+      
+    
+      <% for (let j = startPage; j <= endPage; j++) { %>
+        <li class="page-item <%= j === currentPage ? 'active' : '' %>">
+          <a class="page-link" href="?page=<%= j %>"><%= j %></a>
+        </li>
+      <% } %>
+
+     
+    <% if (nextPage !== null) { %>
+      <li class="page-item">
+        <a class="page-link" href="?page=<%= nextPage %>" aria-label="Next">
+          <span aria-hidden="true">Next &raquo;</span>
+        </a>
+      </li>
+    <% } %>
+    
+  </ul>
+</div>
+  </div>
+</div>
+  </div>
+<%- include('../layout/adminfooter.ejs') %>
+// UpdateOrderStatus.ejs (continued)
+<script>
+  function updateOrderStatus(newStatus, orderId, productId) {
+    const data = { orderId, newStatus, productId };
+
+    fetch('/admin/updateOrderStatus', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+    .then(response => {
+      if (!response.ok && response.status !== 201 && response.status !== 204) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Updated status:', data);
+
+      // Find the corresponding table cell based on orderId and productId
+      const cell = document.querySelector(`.status-cell[data-order-id="${orderId}"][data-product-id="${productId}"]`);
+      if (cell) {
+        // Update the status cell content
+        cell.innerText = data.orderStatus;
+      }
+    })
+    .catch(error => {
+      console.error('There was a problem with the request:', error.message);
+    });
+  }
+</script>

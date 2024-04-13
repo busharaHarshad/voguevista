@@ -1,0 +1,62 @@
+<%- include('../layout/header.ejs') %>
+
+<div >
+
+<div class="d-flex" id="wrapper">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="username-box">
+            <p class="username-text  pt-3 pl-5"> <i class="fa-regular fa-user"></i>   <%= user.name %></p>
+        </div>
+       <a href="/profile" class="btn btn-light btn-block btn-sidebar pt-3">Account Overview</a>
+        <a href="/address" class="btn btn-light btn-block btn-sidebar sidebar-link pt-3">Manage Address</a>
+        <a href="/order" class="btn btn-light btn-block btn-sidebar  pt-3">Orders</a>
+        <a href="/wishlist" class="btn btn-light btn-block btn-sidebar  pt-3">Wishlist</a>
+        <a href="/wallet" class="btn btn-light btn-block btn-sidebar pt-3">Wallet</a>
+    </div>
+    <!-- /#sidebar-wrapper -->
+
+    <!-- Page Content -->
+    <div id="page-content-wrapper" class="flex-grow-1 pl-3">
+        <div class="container-fluid">
+            <h1 class="pt-3">Manage Addresses</h1>
+            <a href="/new-address" class="btn probuto">Add New Address</a>
+           <br>
+
+          <div class="address-list pt-5">
+            <% if (userAddresses.length > 0) { %>
+                <ul class="ul-add">
+                    <% userAddresses.forEach(function(address) { %>
+                        <div class="address-box">
+                        <li><%= address.name %>,<br>
+                             <%= address.mobile %>,<br>
+                              <%= address.address %> ,<br>
+                            <%= address.pincode %>,<br>
+                            <%= address.state %>,<br>
+                            <%= address.district %>,<br>
+                            <%= address.city %>
+                            <a href="/edit-address?id=<%= address._id %>"><i class="fa-solid fa-pen text-dark icon"></i></a>
+                            <a href="/delete-address?id=<%=address._id %>"><i class="fa-solid fa-trash text-dark pl-3"></i></a>
+                            <% if (address.isDefault) { %>
+                                <h6>It Is Your Default Address</h6>
+                            <% } else { %>
+                                <a href="/change-default-address?id=<%= address._id %>" class="btn probuto btn-sm">Set as Default</a>
+                                <% } %>
+                            
+                        </li>
+                        </div>
+                            <% }); %>
+                </ul>
+            <% } else { %>
+                <p>No addresses found</p>
+            <% } %>
+        </div>
+        </div>
+    </div>
+    
+    <!-- /#page-content-wrapper -->
+</div>
+</div>
+
+
+<%- include('../layout/footer.ejs') %>

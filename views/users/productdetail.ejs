@@ -1,0 +1,122 @@
+<%- include('../layout/header.ejs') %>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+        <!-- Toggler/collapsible Button for small screens for the secondary navbar -->
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavSecondary" 
+            aria-controls="navbarNavSecondary" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Navbar links for the secondary navbar -->
+        <div class="collapse navbar-collapse" id="navbarNavSecondary">
+            <div class="container d-flex flex-wrap justify-content-center">
+                <% category.forEach(category => { %>
+                    <a class="text-dark col-md-1 col-lg-2" href=""><%= category.categoryname %></a>
+                <% }) %>            
+            </div>
+        </div>
+    </div>
+</nav>
+</header>
+<div>
+    <div class="maindetail">
+    <div class="container  ">
+        
+        <div class="row detail">
+            <div class="col-md-6 col-sm-12 position-relative">
+                <div id="img-container">
+                <% if (product.image && product.image.length > 0) { %>
+                    <img id="mainImage" src="/img/<%= product.image[0].filename %>" alt="<%= product.productName %>" class="card-img-top custom-img img-fluid">
+                <% } else { %>
+                    <img src="/img/default-image.jpg" alt="Default Image" class="card-img-top custom-img img-fluid" >
+                <% } %>  
+                </div>
+                <div class="row no-gutters">
+                    <% product.image.forEach((image, index) => { %>
+                        <div class="col-3 col-md-3 mt-3">
+                            <a href="/img/<%= image.filename %>" class="image-link">
+                                <img src="/img/<%= image.filename %>" alt="<%= product.productName %>" class="img-thumbnail img-fluid magnify-img">
+                            </a>
+                        </div>
+                    <% }); %>
+                </div>
+                
+              </div>
+
+            <div class="col-md-6 col-sm-12 product-details">
+                <div class="product-title h2"><%= product.productName %></div>
+                <div class="product-title"><%= product.category %></div>
+               
+                <div class="product-description">
+                    <p class="text-break"><%= product.description %></p>
+                </div>
+                <% if (product.offerprice > 0) { %>
+                    <div class="original-price h3"><del>₹<%= product.productprice %></del></div>
+                    <p class="offer-price text-danger">Offer Price: ₹<%= product.offerprice %></p>
+                <% } else { %>
+                    <div class="productprice h3">₹<%= product.productprice %></div>
+                <% } %>
+                
+                <% if (product.stockLeft === 0) { %>
+                    <div class="h3">Out of Stock</div>
+                    <form action="/wishlist" method="post">
+                    
+                        <input type="hidden" name="productId" value="<%= product._id %>">
+                        <button type="submit" class="cart-button btn btn-lg">Add To Wishlist</button>
+                    </form>
+                    <div>
+                <% } else { %>
+                <div class="productprice h3">StockLeft:<%= product.stockLeft %>
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <form action="/add-cart" method="post">
+                            <input type="hidden" name="productId" value="<%= product._id %>">
+                            <input type="hidden" name="price" value="<%= product.offerprice > 0 ? product.offerprice : product.productprice %>">
+                   
+                           <button type="submit" class="cart-button btn btn-lg mr-2">Add To Cart</button>
+                        </form>
+                        <form action="/wishlist" method="post">
+                    
+                            <input type="hidden" name="productId" value="<%= product._id %>">
+                            <button type="submit" class="cart-button btn btn-lg">Add To Wishlist</button>
+                        </form>
+                        </div>
+                </div>
+                <% } %>
+                
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+<br>
+<br>
+<%- include('../layout/footer.ejs') %>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/magnific-popup.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/jquery.magnific-popup.min.js"></script>
+
+<script>
+    function showImage(imageUrl) {
+        document.getElementById('mainImage').src = imageUrl;
+        initializeImageZoom();
+    }
+     // Initialize the image zoomer
+   
+</script> 
+<script>
+    // Initialize Magnify for each thumbnail image
+    $(document).ready(function() {
+        $('.image-link').magnificPopup({
+            type: 'image',
+            gallery: {
+                enabled: true
+            },
+            mainClass: 'mfp-img-mobile',
+            image: {
+                verticalFit: true
+            }
+        });
+    });
+
+
+</script>

@@ -1,0 +1,335 @@
+<%- include('../layout/adminheader.ejs') %>
+
+<div class="main-content">
+<div class="sidebar">
+    <div class="sidebar-buttons">
+      <a href="/admin/home" ><button type="button" class="buttonside btn-block active-linking text-white"><i class="fa-solid fa-chess-board"></i>  Dashboard</button></a>
+      <a href="/admin/customer"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-users"></i>   Customers</button></a>
+      <a href="/admin/product"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-briefcase"></i>   Products</button></a>
+      <a href="/admin/order"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-file"></i>   Orders</button></a>
+      <a href=""><button type="button" class="buttonside btn-block"><i class="fa-regular fa-image"></i>  Banner Management</button></a>
+      <a href="/admin/coupon"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-star"></i>       Coupon Management</button></a>
+      <a href="/admin/salereport"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-chart-simple"></i>  Sales Report</button></a>
+      <a href="/admin/offer"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-user-tie"></i>        Offer</button></a>
+      <a href="/admin/category"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-list"></i>        Category</button></a>
+      <a href=""><button type="button" class="buttonside  btn-block"><i class="fa-solid fa-gear"></i>   Settings</button>
+      <a href="/admin/logout"><button type="button" class="buttonside  btn-block"><i class="fa-solid fa-right-from-bracket"></i>   Logout</button></a>
+    
+    </div>
+  </div>
+    <div class="container-table  mt-5">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Orders</h5>
+                        <i class="fa-solid fa-truck"></i>
+                        <p><%= deliveredOrdersCount %></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Products</h5>
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <p><%= totalProducts %></p>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <h2>Top Selling Categories</h2>
+                <div id="topSellingCategoryChartContainer" data-top-selling-categories="<%= JSON.stringify(topSellingCategories) %>">
+                    <canvas id="topSellingCategoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Top Selling Products</h2>
+                        <div id="topSellingChartContainer" data-top-selling-products="<%= JSON.stringify(topSellingProducts) %>">
+                            <canvas id="topSellingChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Top Selling Brands</h2>
+                        <div id="topSellingBrandChartContainer" data-top-selling-products="<%= JSON.stringify(topSellingBrands) %>">
+                            <canvas id="topSellingBrandChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="filter-section">
+            <label for="chart-filter">Filter:</label>
+            <select id="chart-filter">
+                <option value="yearly">Yearly</option>
+                <option value="monthly">Monthly</option>
+                <!-- Add more filter options as needed -->
+            </select>
+        </div>
+        <canvas id="lineChart"></canvas>
+        
+  </div>
+  </div>
+
+<%- include('../layout/adminfooter.ejs') %>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+      try {
+          // Fetch the top selling products data
+         // const topSellingProducts = <%- JSON.stringify(topSellingProducts) %>;
+         const container = document.getElementById('topSellingChartContainer');
+
+// Retrieve top selling products data from the data attribute
+const topSellingProducts = JSON.parse(container.dataset.topSellingProducts);
+
+
+          // Extract product names and sales quantities
+          const labels = topSellingProducts.map(product => product.productName);
+         // const labels = topSellingProducts.map(product => `${product.productName} product.productDescription}`); // Combine product name and description
+        
+          const salesQuantities = topSellingProducts.map(product => product.totalSales);
+
+          // Get the canvas element
+          const ctx = document.getElementById('topSellingChart').getContext('2d');
+
+          // Initialize the Chart.js instance
+          new Chart(ctx, {
+              type: 'bar',
+              data: {
+               // labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple'],
+                labels: labels,
+               
+                  datasets: [{
+                      label: 'Total Quantity Sold',
+                      data: salesQuantities,
+                      backgroundColor: 'rgba(75, 192, 192, 0.2)', // Example color for bars
+                      borderColor: 'rgba(75, 192, 192, 1)', // Example border color for bars
+                      borderWidth: 1
+                  }]
+              },
+              options: {
+                  scales: {
+                      y: {
+                          beginAtZero: true
+                      }
+                  }
+              }
+          });
+      } catch (error) {
+          console.error('Error rendering chart:', error);
+          // Handle errors, such as displaying an error message or fallback chart
+      }
+  });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            // Fetch the top selling brands data
+            const container = document.getElementById('topSellingBrandChartContainer');
+
+            // Retrieve top selling brands data from the data attribute
+            const topSellingBrands = JSON.parse(container.dataset.topSellingProducts);
+
+            // Extract brand names and total sales
+            const labels = topSellingBrands.map(brand => brand._id);
+            const salesQuantities = topSellingBrands.map(brand => brand.totalSales);
+
+            // Get the canvas element
+            const ctx = document.getElementById('topSellingBrandChart').getContext('2d');
+
+            // Initialize the Chart.js instance
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Total Sales',
+                        data: salesQuantities,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error rendering chart:', error);
+            // Handle errors, such as displaying an error message or fallback chart
+        }
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            // Fetch the top selling categories data
+            const container = document.getElementById('topSellingCategoryChartContainer');
+
+            // Retrieve top selling categories data from the data attribute
+            const topSellingCategories = JSON.parse(container.dataset.topSellingCategories);
+
+            // Extract category names and total sales
+            const labels = topSellingCategories.map(category => category._id);
+            const salesQuantities = topSellingCategories.map(category => category.totalSales);
+
+            // Get the canvas element
+            const ctx = document.getElementById('topSellingCategoryChart').getContext('2d');
+
+            // Initialize the Chart.js instance for a pie chart
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Total Sales',
+                        data: salesQuantities,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error rendering chart:', error);
+            // Handle errors, such as displaying an error message or fallback chart
+        }
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            const filterSelect = document.getElementById('chart-filter');
+
+            filterSelect.addEventListener('change', async () => {
+                const filterValue = filterSelect.value;
+                console.log(filterValue)
+
+                if (filterValue === 'yearly') {
+                    // Fetch yearly data
+                    console.log("iam year")
+                    const yearlyData = await fetchYearlyData();
+                    console.log(yearlyData)
+                    const ctx = document.getElementById('lineChart').getContext('2d');
+                
+                // Render the new line chart
+                lineChart = renderLineChart(ctx, yearlyData);
+       
+                } else if (filterValue === 'monthly') {
+                    // Fetch monthly data
+                    console.log("iam month")
+                    const monthlyData = await fetchMonthlyData();
+                    const ctx = document.getElementById('lineChart').getContext('2d');
+                     // Destroy the existing chart instance if it exists
+                
+
+                // Render the new line chart
+                lineChart = renderLineChart(ctx, monthlyData);
+            }
+                 
+            });
+
+            // Initialize the chart with default filter
+            // const defaultFilterValue = filterSelect.value;
+            //if (defaultFilterValue === 'yearly') {
+            //  const yearlyData = await fetchYearlyData();
+            //renderLineChart(yearlyData);
+            //} else if (defaultFilterValue === 'monthly') {
+            //   const monthlyData = await fetchMonthlyData();
+            // renderLineChart(monthlyData);
+            //}
+        } catch (error) {
+            console.error('Error rendering chart:', error);
+            // Handle errors, such as displaying an error message or fallback chart
+        }
+    });
+
+    async function fetchYearlyData() {
+        const response = await fetch('/admin/getYearlyChartData');
+        if (!response.ok) {
+            throw new Error('Failed to fetch yearly data');
+        }
+        const yearlyData = await response.json();
+        console.log('Yearly data:', yearlyData); // Log the received data
+        return yearlyData;
+
+    }
+
+    async function fetchMonthlyData() {
+        const response = await fetch('/admin/getMonthlyChartData');
+        return response.json();
+    }
+
+    function renderLineChart(ctx, data) {
+       
+        const labels = data.map(entry => entry._id); // Assuming the data structure has '_id' for years
+        const values = data.map(entry => entry.ordersCount);
+ // Check if an existing chart instance exists
+ if (window.myChart) {
+        // Destroy the existing chart instance
+        window.myChart.destroy();
+    }
+        window.myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Orders Count',
+                    data: values,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1,
+                    fill: {
+                    target: 'origin',
+                    above: 'rgba(75, 192, 192, 0.2)', // Shading color
+                }
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+</script>

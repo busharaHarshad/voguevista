@@ -1,0 +1,100 @@
+<%- include('../layout/adminheader.ejs') %>
+
+<div class="main-content">
+<div class="sidebar">
+    <div class="sidebar-buttons">
+      <a href="/admin/home" ><button type="button" class="buttonside btn-block "><i class="fa-solid fa-chess-board"></i>  Dashboard</button></a>
+      <a href="/admin/customer"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-users"></i>   Customers</button></a>
+      <a href="/admin/product"><button type="button" class="buttonside btn-block active-linking text-white"><i class="fa-solid fa-briefcase"></i>   Products</button></a>
+      <a href="/admin/order"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-file"></i>   Orders</button></a>
+      <a href=""><button type="button" class="buttonside btn-block"><i class="fa-regular fa-image"></i>  Banner Management</button></a>
+      <a href="/admin/coupon"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-star"></i>       Coupon Management</button></a>
+      <a href="/admin/salereport"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-chart-simple"></i>  Sales Report</button></a>
+      <a href="/admin/offer"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-user-tie"></i>        Offer</button></a>
+      <a href="/admin/category"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-list"></i>        Category</button></a>
+      <a href=""><button type="button" class="buttonside  btn-block"><i class="fa-solid fa-gear"></i>   Settings</button>
+      <a href="/admin/logout"><button type="button" class="buttonside  btn-block"><i class="fa-solid fa-right-from-bracket"></i>   Logout</button></a>
+    
+    </div>
+  </div>
+    <div class="container-table  mt-5">
+      <div class="main-content">
+        <div class="container mt-5">
+            <h2>Add New Product</h2>
+            <% if(typeof message !== 'undefined') { %>
+              <P style="color:red"><%= message %></p>
+          <% } %>
+            <form action="" method="POST" enctype="multipart/form-data">
+              <div class="form-group">
+                <label for="productName">Product Name:</label>
+                <input type="text" class="form-control" id="productName" placeholder="Enter product name" name="productName"required>
+              </div>
+              <div class="form-group">
+                <label for="category">Category:</label>
+                <select class="form-control" id="category" name="category" required>
+                  <option value="" selected disabled>Select a category</option>
+                  <% category.forEach(category => { %>
+                      <option value="<%= category.categoryname %>"><%= category.categoryname %></option>
+                  <% }) %>
+              </select> 
+              </div>
+              <div class="form-group">
+                <label for="description">Description:</label>
+                <input type='text' class='form-control' id='description' placeholder='Enter description' name='description'required>
+              </div> 
+              <!-- Add more input fields as needed -->
+              <div class="form-group">
+                <label for="productprice">Product Price:</label>
+                <input type='text' class='form-control' id='productprice'  placeholder='Enter productprice' name='productprice'required>
+              </div> 
+              <div class="form-group">
+                <label for="saleprice">Sale Price:</label>
+                <input type='text' class='form-control' id='saleprice'  placeholder='Enter saleprice' name='saleprice'required>
+              </div> 
+              <div class="form-group">
+                <label for="stockLeft">Stock Left:</label>
+                <input type='text' class='form-control' id='stockLeft'  placeholder='Enter stock Left' name='stockLeft'required>
+              </div> 
+              <!-- For file upload -->
+              <div class='form-group'>
+                  <label for='image'>Upload Image:</label>
+                  <input type='file' class='form-control-file' name="image"  id="imageInput" multiple  required>
+                </div>
+                <div class="preview-container" id="imagePreviewContainer"></div>
+
+               <!-- Submit button -->
+              <a href="/product"> <button type='submit' class='btn addbutn'>Add Product</button></a> 
+            </form> 
+          </div>
+    
+      </div>
+          
+  </div>
+  </div>
+
+<%- include('../layout/adminfooter.ejs') %>
+<script>
+  const imageInput = document.getElementById('imageInput');
+  const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+
+  imageInput.addEventListener('change', (event) => {
+      const files = event.target.files;
+
+      // Clear existing previews
+      imagePreviewContainer.innerHTML = '';
+
+      for (const file of files) {
+          const reader = new FileReader();
+
+          reader.onload = (e) => {
+              const imagePreview = document.createElement('img');
+              imagePreview.src = e.target.result;
+              imagePreview.alt = file.name;
+              imagePreview.className = 'preview-image';
+              imagePreviewContainer.appendChild(imagePreview);
+          };
+
+          reader.readAsDataURL(file);
+      }
+  });
+</script>

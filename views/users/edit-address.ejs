@@ -1,0 +1,65 @@
+<%- include('../layout/header.ejs') %>
+
+<div >
+
+<div class="d-flex" id="wrapper">
+    <!-- Sidebar -->
+    <div class="sidebar ">
+        <div class="username-box">
+            <p class="username-text  pt-3 pl-5"> <i class="fa-regular fa-user"></i>   <%= user.name %></p>
+        </div>
+       <a href="/profile" class="btn btn-light btn-block btn-sidebar  pt-3">Account Overview</a>
+        <a href="/address" class="btn btn-light btn-block btn-sidebar sidebar-link pt-3">Manage Address</a>
+        <a href="/order" class="btn btn-light btn-block btn-sidebar  pt-3">Orders</a>
+        <a href="/wishlist" class="btn btn-light btn-block btn-sidebar  pt-3">Wishlist</a>
+        <a href="/wallet" class="btn btn-light btn-block btn-sidebar pt-3">Wallet</a>
+    </div>
+    <!-- /#sidebar-wrapper -->
+
+    <!-- Page Content -->
+    <div id="page-content-wrapper" class="flex-grow-1 pl-3">
+        <div class="container-fluid">
+            <h1 class="pt-3">Add New Address</h1>
+            <small>Fill Below Details To Add New Address</small>
+            <form action=""method="POST">
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" class="form-control" value="<%= address.name %>">
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label for="mobile">Mobile No.</label>
+                    <input type="tel" id="mobile" name="mobile" class="form-control" value="<%= address.mobile %>">
+                  </div>
+                </div>
+                <div class="form-group text-area">
+                  <label for="address">Address</label>
+                  <textarea id="address" name="address" class="form-control" rows="3"><%= address.address %></textarea>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-md-3">
+                    <label for="pincode">Pin Code</label>
+                    <input type="text" id="pincode" name="pincode" class="form-control" value="<%= address.pincode %>">
+                  </div>
+                  <div class="form-group col-md-3">
+                    <label for="state">State</label>
+                    <input type="text" id="state" name="state" class="form-control" value="<%= address.state %>">
+                  </div>
+                  <div class="form-group col-md-3">
+                    <label for="district">District</label>
+                    <input type="text" id="district" name="district" class="form-control" value="<%= address.district %>">
+                  </div>
+                  <div class="form-group col-md-3">
+                    <label for="city">City</label>
+                    <input type="text" id="city" name="city" class="form-control" value="<%= address.city %>">
+                  </div>
+                </div>
+                <input type="hidden" name="address_id" value="<%= address._id %>">
+                <button type="submit" class="btn probut">Update</button>
+              </form>
+              
+               </div>
+    </div>
+</div>
+</div>
+<%- include('../layout/footer.ejs') %>

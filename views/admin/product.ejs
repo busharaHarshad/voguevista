@@ -1,0 +1,294 @@
+<%- include('../layout/adminheader.ejs') %>
+<div class="main-content">
+<!---sidebar-->
+<div class="sidebar">
+  <div class="sidebar-buttons">
+    <a href="/admin/home"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-chess-board"></i>  Dashboard</button></a>
+    <a href="/admin/customer"><button type="button" class="buttonside btn-block "><i class="fa-solid fa-users"></i>   Customers</button></a>
+    <a href="/admin/product"><button type="button" class="buttonside btn-block active-linking text-white"><i class="fa-solid fa-briefcase"></i>   Products</button></a>
+    <a href="/admin/order"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-file"></i>   Orders</button></a>
+    <a href=""><button type="button" class="buttonside btn-block"><i class="fa-regular fa-image"></i>  Banner Management</button></a>
+    <a href="/admin/coupon"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-star"></i>       Coupon Management</button></a>
+    <a href="/admin/salereport"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-chart-simple"></i>  Sales Report</button></a>
+    <a href="/admin/offer"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-user-tie"></i>        Offer</button></a>
+    <a href="/admin/category"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-list"></i>        Category</button></a>
+    <a href=""><button type="button" class="buttonside  btn-block"><i class="fa-solid fa-gear"></i>   Settings</button>
+    <a href="/admin/logout"><button type="button" class="buttonside  btn-block"><i class="fa-solid fa-right-from-bracket"></i>   Logout</button></a>
+  
+    </div>
+</div>
+<div class=" container-table mt-5">
+  <div class="col-md-5">
+    <span><a href="/admin/addproduct" class="btn addbutton">Add Product</a></span>
+  </div>
+  <br>
+  <div class="search-area col-5">
+    <form class="form-inline my-2 my-lg-0">
+      <div class="input-group search-input">
+        <input class="form-control" type="text" placeholder="Search for your choices" name="search">
+        <div class="input-group-append">
+          <span class="input-group-text searchlen">
+            <button type="submit" class="btn btn-link d-md-inline" aria-label="Search">
+              <i class="fa-solid fa-magnifying-glass text-dark" name="search"></i>
+            </button>
+          </span>
+        </div>
+      </div>
+    </form>
+  </div>
+<br>
+ <!-- Add sorting options -->
+ <div><div class="container">
+  <div class="row">
+    <!-- Sorting Dropdown -->
+    <div class="col-md-6">
+      <div class="sorting-options">
+        <form class="form-inline my-2 my-lg-0" id="sortForm">
+          <div class="input-group">
+            <select class="form-control" id="sortDropdown" name="sort">
+              <option value="default" selected disabled hidden>Sorting</option>
+              <option value="productprice_asc">Sort by Product Price (Asc)</option>
+              <option value="productprice_desc">Sort by Product Price (Desc)</option>
+              <option value="saleprice_asc">Sort by Sale Price (Asc)</option>
+              <option value="saleprice_desc">Sort by Sale Price (Desc)</option>
+              <option value="quantity_asc">Quantity (Asc)</option>
+              <option value="quantity_desc">Quantity(Desc)</option>
+              <!-- Add more sorting options as needed -->
+            </select>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Filtering Dropdown -->
+    <div class="col-md-6">
+      <div class="filterOptions float-right">
+        <form action="/admin/product" method="GET" class="form-inline my-2 my-lg-0" id="filterForm">
+          <div class="input-group">
+            <select class="form-control" id="categoryDropdown" name="category" onchange="submitForm()">
+              <option value="" selected disabled hidden>Filter By Category</option>
+              <% categories.forEach(category => { %>
+                <option value="<%= category.categoryname %>" <%= req.query.category === category.categoryname ? 'selected' : '' %>><%= category.categoryname %></option>
+              <% }); %>
+            </select>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Your content goes here -->
+
+</div>
+
+
+
+   <!----table--------->
+    <div class="body-table">
+    <table class="table">
+<thead class="headertable">
+        <tr>
+            
+            <th scope="col">PRODUCT NAME</th>
+            <th scope="col">CATEGORY</th>
+            <th scope="col">DESCRIPTION</th>
+            <th scope="col">PRODUCT PRICE</th>
+            <th scope="col">SALE PRICE</th>
+            <th scope="col">STOCK LEFT</th>
+            <th scope="col">OFFER</th>
+            <th scope="col">OFFER PRICE</th> <!-- New column for offer price -->
+            <th scope="col">IMAGE</th>
+            <th scope="col">UPDATE</th>
+        </tr>
+</thead>
+<tbody>
+ 
+  <% products.forEach(product => { %>
+    <tr>
+     
+      <td><%= product.productName %></td>
+      <td><%= product.category %></td>
+      <td><%= product.description %></td>
+      <td><%= product.productprice %></td>
+      <td><%= product.saleprice %></td>
+      
+      <td><%= product.stockLeft %></td>
+      <td>
+        
+        <div id="removeOfferContainer<%= product._id %>" >
+          <button class="btn btn-danger" id="removeOfferButton<%= product._id %>" onclick="removeOffer('<%= product._id %>')">Remove Offer</button>
+ 
+        </div>
+        <div class="dropdown">
+              <button class="dropbtn bg-success" id="offerButton<%= product._id %>">Apply Offer</button>
+              
+          <div class="dropdown-content bg-success" >
+            
+            <% activeOffers.forEach(offer => { %>
+              <a class="dropdown-item"  href="#" onclick="applyOffer('<%= product._id %>', '<%= offer._id %>', '<%= offer.percentage %>')">
+                <%= offer.offername %> - <%= offer.percentage %>%</a>
+         
+              <% }); %>
+          </div>
+        </div>
+      </td>
+      <td id="offerPriceCell_<%= product._id %>"><%= product.offerprice %></td>
+       
+      <td class="image-cell">
+          <% product.image.forEach(image => { %>
+          <img src="/img/<%= image.filename %>" alt="<%= image.filename %>" width="50px" height="50px">
+        <% }); %>
+      </td>
+      <td>
+        <a href="/admin/editproduct?id=<%= product._id %>"><i class="fa-solid fa-pen text-dark"></i></a>
+          <a href="/admin/deleteproduct?id=<%= product._id %>"><i class="fa-solid fa-trash text-dark"></i></a>
+          </td>
+      </tr>
+    
+  <% }); %>
+</tbody>
+       </table>
+           
+       <div class="pagination-container">
+        <ul class="pagination">
+            <% if (prevPage !== null) { %>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<%= prevPage %>&search=<%= search %>" aria-label="Previous">
+                        <span aria-hidden="true">&laquo; Prev</span>
+                    </a>
+                </li>
+            <% } %>
+            
+            <% const displayRange = 1; // Number of page numbers to display on each side of the current page %>
+            <% const startPage = Math.max(1, currentPage - displayRange); %>
+            <% const endPage = Math.min(totalPages, startPage + displayRange * 2); %>
+            
+            <% for (let j = startPage; j <= endPage; j++) { %>
+                <li class="page-item <%= j === currentPage ? 'active' : '' %>">
+                    <a class="page-link" href="?page=<%= j %>&search=<%= search %>"><%= j %></a>
+                </li>
+            <% } %>
+    
+            <% if (nextPage !== null) { %>
+              <li class="page-item">
+                  <a class="page-link" href="?page=<%= Math.min(nextPage, totalPages) %>&search=<%= search %>" aria-label="Next">
+                      <span aria-hidden="true">Next &raquo;</span>
+                  </a>
+              </li>
+          <% } %>
+          
+        </ul>
+    </div>
+    
+</div>
+  </div>
+  </div>
+<%- include('../layout/adminfooter.ejs') %>
+
+<script>
+  document.getElementById('sortDropdown').addEventListener('change', function() {
+    document.getElementById('sortForm').submit();
+  });
+
+  // Function to submit the form when a category is selected
+  function submitForm() {
+    document.getElementById('filterForm').submit();
+  }
+</script>
+<script>
+function applyOffer(productId, offerId, percentage) {
+  const data = { productId, offerId, percentage };
+
+  fetch(`/admin/applyOffer`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  })
+  .then(response => {
+    if (!response.ok && response.status !== 201 && response.status !== 204) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log('Offer applied:', data);
+// Update the UI based on the response data
+
+console.log(data)
+// Assuming data.offerPrice contains the offer price
+const offerPriceCell = document.getElementById(`offerPriceCell_${productId}`);
+if (offerPriceCell) {
+  offerPriceCell.textContent = data.offerPrice.toFixed(0); // Format the offer price as needed
+}
+      
+    // Remove the existing button
+  /*  const buttonToRemove = document.getElementById(`offerButton${productId}`);
+    if (buttonToRemove) {
+      buttonToRemove.parentNode.removeChild(buttonToRemove);
+    }*/
+
+    // Create a new button for removing the offer
+    //const removeButton = document.createElement('button');
+    //removeButton.textContent = 'Remove Offer';
+    //removeButton.classList.add('dropbtn', 'bg-danger');
+    //removeButton.addEventListener('click', function() {
+      // Call a function to handle removing the offer
+      //removeOffer(productId, offerId);
+    //});
+
+    // Append /the new button to the container
+    //const container = document.getElementById('removeOfferContainer');
+    //if (container) {
+    //  container.appendChild(removeButton);
+    //}
+    
+  })
+  .catch(error => {
+    console.error('Error applying offer:', error.message);
+    // Optionally, show error message to the user
+  });
+
+  // Function to remove an offer
+  
+}
+function removeOffer(productId) {
+    const data = { productId };
+
+console.log(productId)
+    fetch(`/admin/removeOffer`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
+    .then(response => {
+      if (!response.ok && response.status !== 201 && response.status !== 204) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Offer removed:', data);
+     // Update the UI based on the response data
+     const offerPriceCell = document.getElementById(`offerPriceCell_${productId}`);
+if (offerPriceCell) {
+  offerPriceCell.textContent = data.offerPrice; // Format the offer price as needed
+}
+      // Remove the "Remove Offer" button from the UI
+     // const removeButton = document.querySelector('#removeOfferContainer button');
+      //if (removeButton) {
+       // removeButton.parentNode.removeChild(removeButton);
+     // }
+// Show the "Apply Offer" button and hide the "Remove Offer" button
+    // Optionally, update the UI or show a success message
+    })
+    .catch(error => {
+      console.error('Error removing offer:', error.message);
+      // Optionally, show error message to the user
+    });
+  }
+
+</script>

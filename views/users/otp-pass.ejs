@@ -1,0 +1,100 @@
+<%- include('../layout/header.ejs') %>
+
+<div class="main-block">
+    <div class="contain rounded-5">
+        <!-- Left side content from the second code -->
+        <div class="left-side rounded-5">
+            <h3>Login</h3>
+            <h6>"Vivid Dreams, Colorful Realities." "Every Hue Every Smile."</h6>
+            <img class="logoimage" src="img/logofront.png" alt="Image">
+        </div>
+
+        <!-- Right side content from the second code -->
+        <div class="right-side">
+            <div class="login-form">
+                <form action="" method="POST" class="mt-4">
+                    <div class="form-group">
+                        <input type="email" name="email" class="form-control" required placeholder="Enter Email">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" name="password" class="form-control border-bottom-2" required placeholder="Enter Password">
+                    </div>
+                    
+                    <div class="form-group">
+                        <input type="text" name="otp" class="form-control border-bottom-2" placeholder="Enter OTP">
+                    </div>
+                    <div class="form-group">
+                        <button id="resendOTPButton" class="submit-button">Resend OTP</button> <!-- Resend OTP button -->
+                        <span id="timer" style="display:none;"></span> <!-- Timer placeholder -->
+                    </div>
+                    <br>
+                    <div class="form-group">
+                        <input type="submit" value="LOGIN" class="submit-button">
+                    </div>
+                </form>
+                <% if(typeof message !== 'undefined') { %>
+                    <p style="color:red;"><%= message %></p>
+                <% } %>
+            </div>
+            <br>
+            <br>
+            <div>
+                <a href="register" class="creteacct"><small>New to Vogue Vista? Create an account</small></a>
+            </div>
+        </div>
+    </div>
+</div>
+<%- include('../layout/footer.ejs') %>
+<script>
+    $(document).ready(function() {
+        // Function to start the timer for one minute
+        function startTimer(duration, display) {
+            var timer = duration, minutes, seconds;
+            setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                display.text(minutes + ":" + seconds);
+
+                if (--timer < 0) {
+                    timer = duration;
+                    $('#resendOTPButton').prop('disabled', false); // Enable the Resend OTP button
+                    $('#timer').hide(); // Hide the timer
+                }
+            }, 1000);
+        }
+   $('#resendOTPButton').click(function(event) {
+        event.preventDefault(); // Prevent default form submission behavior
+        
+            //timer otp button
+
+        $(this).prop('disabled', true);
+
+            // Show the timer
+            $('#timer').show();
+
+            // Start the one-minute timer
+            var oneMinute = 60,
+                display = $('#timer');
+            startTimer(oneMinute, display);
+        // Send AJAX request to resend OTP
+        $.ajax({
+            url: '/resend-otp', // URL of your resend OTP route
+            type: 'POST', // Request method
+            success: function(response) {
+                // Handle successful response (optional)
+                alert('New OTP sent successfully');
+            },
+            error: function(xhr, status, error) {
+                // Handle error response (optional)
+                console.error(error);
+                alert('Failed to resend OTP. Please try again later.');
+            }
+        });
+    });
+});
+</script>
+

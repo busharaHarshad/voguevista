@@ -1,0 +1,141 @@
+<%- include('../layout/adminheader.ejs') %>
+<div class="main-content">
+  <!---sidebar-->
+<div class="sidebar">
+    <div class="sidebar-buttons">
+      <a href="/admin/home"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-chess-board"></i>  Dashboard</button></a>
+      <a href="/admin/customer"><button type="button" class="buttonside btn-block  "><i class="fa-solid fa-users"></i>   Customers</button></a>
+      <a href="/admin/product"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-briefcase"></i>   Products</button></a>
+      <a href="/admin/order"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-file"></i>   Orders</button></a>
+      <a href=""><button type="button" class="buttonside btn-block"><i class="fa-regular fa-image"></i>  Banner Management</button></a>
+      <a href="/admin/coupon"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-star"></i>       Coupon Management</button></a>
+      <a href="/admin/salereport"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-chart-simple"></i>  Sales Report</button></a>
+      <a href="/admin/offer"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-user-tie"></i>        Offer</button></a>
+      <a href="/admin/category"><button type="button" class="buttonside btn-block active-linking text-white"><i class="fa-solid fa-list"></i>        Category</button></a>
+      <a href=""><button type="button" class="buttonside  btn-block"><i class="fa-solid fa-gear"></i>   Settings</button>
+      <a href="/admin/logout"><button type="button" class="buttonside  btn-block"><i class="fa-solid fa-right-from-bracket"></i>   Logout</button></a>
+    
+      </div>
+  </div>
+  <div class=" container-table mt-5">
+    <div class="container mt-5 ">
+      <div class="card table">
+        <div class="card-body">
+          <h2 class="card-title text-center mb-4">ADD NEW CATEGORY</h2>
+          <form action="" method="POST">
+            <div class="form-group">
+              <label for="categoryname">Category Name:</label>
+              <input type="text" class="form-control rounded border-0" id="name" name="categoryname" placeholder="Enter category name" required>
+            </div>
+            <button type="submit" class="btn btn-block buttoncat">Save</button>
+          </form>
+          <% if(typeof message !== 'undefined') { %>
+            <P style="color:red"><%= message %></p>
+        <% } %>
+        </div>
+      </div>
+     
+    </div>
+    
+    <div class="body-table">
+      <table class="table">
+  <thead class="headertable">
+          <tr>
+             
+              <th scope="col">CATEGORY</th>
+              <th scope="col">LIST/UNLIST</th>
+              <th scope="col">ACTIONS</th>
+              <th scope="col">OFFER</th>
+              <th scope="col"></th>
+          </tr>
+  </thead>
+  <tbody>
+    <% category.forEach(category => { %>
+      <tr>
+        
+        <td><%= category.categoryname %></td>
+        <td> <form action="/admin/category/<%= category._id %>/list" method="POST" style="display: inline;">
+          <button class="list-btn"type="submit">
+              <% if (category.status) { %>
+                  Unlist
+              <% } else { %>
+                  List
+              <% } %>
+          </button>
+      </form>
+    </td>
+        <td><a href="/admin/editcategory?id=<%= category._id %>"><i class="fa-solid fa-pen text-dark"></i></a>
+
+           <a href="/admin/softdeletecategory?id=<%= category._id %>"><i class="fa-solid fa-trash text-dark p-2"></i></a></td>
+           <td>
+            <div class="dropdown">
+                  <button class="dropbtn bg-success" id="offerButton<%= category._id %>">Apply Offer</button>
+                  
+              <div class="dropdown-content bg-success" >
+                
+                <% activeOffers.forEach(offer => { %>
+                  <a class="dropdown-item"  href="#" onclick="applyOffer('<%= category._id %>', '<%= offer._id %>')">
+                    <%= offer.offername %> - <%= offer.percentage %>%</a>
+             
+                  <% }); %>
+              </div>
+            </div>
+           </td>
+           <td>
+            <div id="removeOfferContainer<%= category._id %>" >
+              <button class="btn btn-danger" id="removeOfferButton<%= category._id %>" onclick="removeOffer('<%= category._id %>')">Remove Offer</button>
+     
+            </div>
+           </td>
+        </tr>
+    <% }); %>
+  </tbody>
+  </table>
+  </div>
+  </div>
+
+<%- include('../layout/adminfooter.ejs') %>
+
+<script>
+  // Function to apply an offer to a category
+  async function applyOffer(categoryId, offerId) {
+    console.log(categoryId, offerId);
+    try {
+        const response = await fetch(`/admin/apply-offerCategory/${categoryId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ offerId })
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        console.log(data.message);
+        // Handle success or show a message to the user
+    } catch (error) {
+        console.error('Error applying offer:', error);
+        // Handle error or show an error message to the user
+    }
+}
+
+
+  // Function to remove an offer from a category
+  async function removeOffer(categoryId) {
+    try {
+      const response = await fetch(`/admin/remove-offerCategory/${categoryId}`, {
+        method: 'POST',
+      });
+
+      const data = await response.json();
+      console.log(data.message);
+      // Handle success or show a message to the user
+    } catch (error) {
+      console.error('Error removing offer:', error);
+      // Handle error or show an error message to the user
+    }
+  }
+</script>

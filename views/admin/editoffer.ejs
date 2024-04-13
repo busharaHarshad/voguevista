@@ -1,0 +1,48 @@
+<%- include('../layout/adminheader.ejs') %>
+
+<div class="main-content">
+<div class="sidebar">
+    <div class="sidebar-buttons">
+      <a href="/admin/home" ><button type="button" class="buttonside btn-block "><i class="fa-solid fa-chess-board"></i>  Dashboard</button></a>
+      <a href="/admin/customer"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-users"></i>   Customers</button></a>
+      <a href="/admin/product"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-briefcase"></i>   Products</button></a>
+      <a href="/admin/order"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-file"></i>   Orders</button></a>
+      <a href=""><button type="button" class="buttonside btn-block"><i class="fa-regular fa-image"></i>  Banner Management</button></a>
+      <a href="/admin/coupon"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-star"></i>       Coupon Management</button></a>
+      <a href="/admin/salereport"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-chart-simple"></i>  Sales Report</button></a>
+      <a href="/admin/offer"><button type="button" class="buttonside btn-block active-linking text-white"><i class="fa-solid fa-user-tie"></i>        Offer</button></a>
+      <a href="/admin/category"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-list"></i>        Category</button></a>
+      <a href=""><button type="button" class="buttonside  btn-block"><i class="fa-solid fa-gear"></i>   Settings</button>
+      <a href="/admin/logout"><button type="button" class="buttonside  btn-block"><i class="fa-solid fa-right-from-bracket"></i>   Logout</button></a>
+    
+    </div>
+  </div>
+    <div class="container-table  mt-5">
+        <div class="container mt-5">
+            <h2>Edit Offer</h2>
+            <form action="/admin/editoffer" method="POST">
+                <input type="hidden" name="id" value="<%= offer._id %>">
+                
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="offername" class="form-control" value="<%= offer.offername %>" required>
+                </div>
+                <div class="form-group">
+                    <label for="percentage">Percentage:</label>
+                    <input type="number" id="percentage" name="percentage" min="0" max="100" class="form-control"value="<%= offer.percentage %>"  required>
+                     </div>
+                <div class="form-group">
+                    <label for="startDate">Starting Date:</label>
+                    <input type="date" id="startDate" name="startDate" class="form-control"  required>
+                </div>
+                <div class="form-group">
+                    <label for="expiryDate">Expiry Date:</label>
+                    <input type="date" id="expiryDate" name="expiryDate" class="form-control"  required>
+                </div>
+                <button type="submit" class="btn btn-success">Update Offer</button>
+            </form>
+        </div>
+            
+  </div>
+</div>
+<%- include('../layout/adminfooter.ejs') %>

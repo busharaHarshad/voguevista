@@ -1,0 +1,395 @@
+<%- include('../layout/header.ejs') %>
+<div>
+    <div class="maindetailcart">
+        <div class="check pl-5 ml-5 mr-5">
+            <!-- Add Apply Coupon Button -->
+
+            <h2>CheckOut List</h2>
+        </div>
+        <div>
+            <div class="datacart pl-5 ml-5 mr-5 border-bottom">
+                <% cart.product.forEach(item => { %>
+                <div class="product">
+                    <img src="/img/<%= item.productId.image[0].filename %>" width="60px" height="60px">
+                    <p><%= item.productId.productName %></p>
+                </div>
+                <% }) %>
+            </div>
+
+            <div class="address pl-5 ml-5 mr-5 border-bottom">
+                <p><b>Delivery Address</b></p>
+                <% if (address.length === 0) { %>
+                <!-- If there are no addresses, display a message and the "Add Address" button -->
+                <p>No addresses found. Add a new address.</p>
+                <a href="/new-address" class="btn probuto pb-3 mb-3">Add New Address</a>
+                <br>
+                <% } else { %>
+                <% address.forEach(function(address) { %>
+                <div>
+                    <input type="radio" id="address_<%= address._id %>" name="selectedAddress"
+                        value="<%= address._id %>" required>
+                    <label for="address_<%= address._id %>"><%= address.name %> - <%= address.mobile %> -
+                        <%= address.address %> - <%= address.pincode %> - <%= address.city %> - <%= address.district
+                        %> - <%= address.state %></label>
+                    <a href="/edit-address?id=<%= address._id %>"><i class="fa-solid fa-pen text-dark"></i></a>
+
+                </div>
+                <% }); %>
+                <% } %>
+            </div>
+
+            <div class="bill pl-5 ml-5 mr-5 border-bottom">
+                <p><b>Order Summary</b></p>
+                <p>Total Items: <%= totalItem %></p>
+                <p>Delivery:Free Delivery</p>
+                <p  id="totalAmount">Total Amount:<%= overallTotal %></p>
+                 <!-- Add Apply Coupon Button -->
+      <button class="btn cart-button ml-5 " id="availableCouponss" onclick="showAvailableCoupons()">Coupons</button>
+
+      <!-- Display Available Coupons Based on Price Range -->
+              <div id="availableCouponsContainer" style="display: none;">
+               <h3>Available Coupons</h3>
+              
+               <div id="availableCoupons"></div>
+               <form id="applyCouponForm" action="/apply-coupon" method="POST"onsubmit="applyCoupon(event)" >
+                <input type="text" id="couponCodeInput" name="couponCode" placeholder="Enter coupon code">
+                <input type="hidden" id="orderTotalInput" name="orderTotal" value="<%= overallTotal %>">
+                <button id="applyCouponButton"  class="btn cart-button ml-5" type="submit">Apply Coupon</button>
+            </form>
+            <button id="removeCouponButton" class="btn cart-button ml-5" style="display: none;" onclick="removeCoupon(event)">Remove Coupon</button>
+           
+            
+            
+          </div>
+            </div>
+            <div class="payment pl-5 ml-5 mr-5 border-bottom">
+                <p><b> payment Method</b></p>
+                <!-- Add payment method display here -->
+                <label>
+                    <input type="radio" name="paymentMethod" value="cashOnDelivery"> Cash on Delivery
+                </label>
+                <br>
+                <label>
+                    <input type="radio" name="paymentMethod" value="wallet"> Wallet
+                </label>
+                <br>
+                <label>
+                    <input type="radio" name="paymentMethod" value="onlinePayment"> Online Payment
+                </label>
+            </div><br>
+            <button class="btn cart-button ml-5" onclick="submitForm()">Proceed to Pay</button>
+        </div>
+    </div>
+</div>
+
+<%- include('../layout/footer.ejs') %>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<script>
+    async function submitForm() {
+        // Validate payment method
+        var paymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+        if (!paymentMethod) {
+            alert('Please select a payment method.');
+            return;
+        }
+
+        // Validate selected address
+        var selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
+        if (!selectedAddress) {
+            alert('Please select a delivery address.');
+            return;
+        }
+        const totalAmountElement = document.getElementById('totalAmount');
+
+// Get the text content of the element (which includes the overallTotal value)
+const totalAmountText = totalAmountElement.textContent;
+
+// Extract the numerical value from the text content (assuming it's at the end)
+const orderTotal = parseInt(totalAmountText.match(/\d+/)[0], 10);
+console.log(orderTotal); // Testing to see the value in the console
+// Example order total (in cents or paise)
+
+ // Get coupon code
+ var couponNameInput = document.getElementById('couponCodeInput').value.trim();
+   
+if (paymentMethod.value === 'cashOnDelivery' && orderTotal > 1000) {
+        alert('Cash On Delivery is not available for orders above Rs 1000. Please choose a different payment method.');
+        return;
+    }
+    
+        // Prepare payload
+        var payload = {
+            paymentMethod: paymentMethod.value,
+            selectedAddress: selectedAddress.value,
+            overallTotal:orderTotal
+          
+        };
+        if (couponNameInput !== '') {
+        // Include coupon code in the payload only if a coupon is applied
+        payload.couponName = couponNameInput;
+    }
+console.log(payload)
+        try {
+            // Send data to backend using Axios
+            const response = await axios.post('/checkout', payload);
+            if (response.status === 200) {
+                // Payment successful, initiate Razorpay payment
+                if (paymentMethod.value === 'cashOnDelivery') {
+                window.location.href = '/complete';
+                return; // End the function to prevent further execution
+            }
+            if (paymentMethod.value === 'wallet') {
+                window.location.href = '/complete';
+                return; // End the function to prevent further execution
+            }
+                const orderId = response.data.orderId; // Assuming your backend returns the orderId
+console.log(orderId)
+function handlePaymentSuccess(response) {
+            alert('Payment successful. Payment ID: ' + response.razorpay_payment_id);
+            saveOrder(payload);
+        }
+
+        // Function to handle payment failure response
+        function handlePaymentFailure(error) {
+            console.error('Payment failed:', error);
+            alert('Payment failed. Please try again.');
+            savePendingOrder(payload);
+        }
+
+        // Function to save the order after successful payment
+        async function saveOrder(payload) {
+            try {
+        // Send data to backend to save the order
+        const saveOrderResponse = await axios.post('/save-order', payload);
+console.log(payload)
+        if (saveOrderResponse.status === 200) {
+            // Order saved successfully
+            window.location.href = '/complete'; // Redirect to completion page
+        } else {
+            // Handle error while saving order
+            alert('Failed to save order. Please contact support.');
+        }
+    } catch (error) {
+        console.error('Error occurred while saving order:', error);
+        alert('An error occurred while saving your order. Please try again later.');
+    }
+        }
+
+        // Function to save the order with "payment pending" status after payment failure
+        async function savePendingOrder(payload) {
+    try {
+        const savePendingOrderResponse = await axios.post('/save-pending-order', payload);
+        console.log(payload);
+
+        if (savePendingOrderResponse.status === 200) {
+            // Inform user about failed payment and provide options
+            alert('Payment failed, but your order has been saved. You can continue shopping.');
+            window.location.href = '/complete'; // Redirect to completion page
+        } else {
+            // Handle error while saving order
+            alert('Failed to save order. Please contact support.');
+        }
+    } catch (error) {
+        console.error('Error occurred while saving order with payment pending status:', error);
+        alert('An error occurred while saving your order with payment pending status. Please try again later.');
+    }
+}
+
+
+
+ 
+
+
+                var options = {
+                    key: 'rzp_test_NG5lzT2e7Wq9k0', // Replace with your Razorpay key
+                    amount: response.data.amount, // Amount in paise (e.g., for ₹10, amount = 1000)
+                    currency: 'INR', // Currency code (e.g., INR for Indian Rupees)
+                    order_id: orderId, // Order ID obtained from your backend
+                    name: 'Vougue Vista',
+                    description: 'Payment for Order',
+                    handler: function(response) {
+                        // Payment success callback
+                       // alert('Payment successful. Payment ID: ' + response.razorpay_payment_id);
+                       // window.location.href = '/complete'; // Redirect to completion page
+                      // saveOrder(payload);
+                      // async function saveOrder(payload) {
+                       // console.log(payload)
+                       if (response.razorpay_payment_id) {
+                    handlePaymentSuccess(response);
+                } else {
+                    handlePaymentFailure(response);
+                }
+   /* try {
+        // Send data to backend to save the order
+        const saveOrderResponse = await axios.post('/save-order', payload);
+console.log(payload)
+        if (saveOrderResponse.status === 200) {
+            // Order saved successfully
+            window.location.href = '/complete'; // Redirect to completion page
+        } else {
+            // Handle error while saving order
+            alert('Failed to save order. Please contact support.');
+        }
+    } catch (error) {
+        console.error('Error occurred while saving order:', error);
+        alert('An error occurred while saving your order. Please try again later.');
+    }*/
+
+
+                    },
+                    theme: {
+                        color: '#ca2b78' // Customize the color theme
+                    }
+                };
+
+                var rzp1 = new Razorpay(options);
+                rzp1.on('payment.error', function (error) {
+                    // Payment failure callback
+                   // console.error('Payment failed:', error);
+                   // alert('Payment failed. Please try again.');
+                   handlePaymentFailure(error);
+       
+                });
+
+                rzp1.open(); // Open the Razorpay checkout form
+            } 
+        } catch (error) {
+            console.error('Error occurred while processing payment:', error);
+            alert('An error occurred while processing your payment. Please try again later.');
+        }
+    }
+    ////////////////////////////////////////////////////////////////////////////////////\
+    
+    async function showAvailableCoupons() {
+    // Get order total from the DOM or calculate it dynamically
+    const totalAmountElement = document.getElementById('totalAmount');
+
+// Get the text content of the element (which includes the overallTotal value)
+const totalAmountText = totalAmountElement.textContent;
+
+// Extract the numerical value from the text content (assuming it's at the end)
+const orderTotal = parseInt(totalAmountText.match(/\d+/)[0], 10);
+console.log(orderTotal); // Testing to see the value in the console
+// Example order total (in cents or paise)
+
+    try {
+        // Fetch available coupons based on the order total
+        const response = await axios.get(`/coupons?orderTotal=${orderTotal}`);
+        const coupons = response.data.coupons;
+
+        // Display available coupons in the DOM
+        const availableCouponsContainer = document.getElementById('availableCouponsContainer');
+        if (coupons.length === 0) {
+           
+availableCouponsContainer.style.display = 'none'; // Hide the available coupons section
+const noCouponsMessage = document.createElement('p');
+    noCouponsMessage.textContent = 'No coupons available.';
+    availableCouponsContainer.parentNode.insertBefore(noCouponsMessage, availableCouponsContainer.nextSibling);
+    const availableCoupons = document.getElementById('availableCoupons');
+    availableCouponss.style.display = 'none';
+     
+
+} else {
+        const availableCoupons = document.getElementById('availableCoupons');
+        availableCoupons.innerHTML = ''; // Clear previous coupons
+        coupons.forEach(coupon => {
+            const couponElement = document.createElement('div');
+            couponElement.textContent = `Coupon Code: ${coupon.couponName}, Discount: ${coupon.discount}%`;
+            availableCoupons.appendChild(couponElement);
+        });
+        availableCouponsContainer.style.display = 'block'; // Show the available coupons section
+    }
+    } catch (error) {
+        console.error('Error fetching available coupons:', error);
+    }
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    async function applyCoupon(event) {
+        event.preventDefault(); // Prevent the default form submission behavior
+
+        const couponName = document.getElementById('couponCodeInput').value;
+        const orderTotal = document.getElementById('orderTotalInput').value;
+
+        try {
+            const response = await fetch('/apply-coupon', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ couponName, orderTotal })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to apply coupon');
+            }
+
+            const data = await response.json();
+
+            // Update the UI with the new total amount
+            if (data.overallTotal) {
+                const updatedTotal = data.overallTotal;
+                const totalAmountElement = document.getElementById('totalAmount');
+                totalAmountElement.textContent = `Total Amount: ${updatedTotal}`;
+            }
+            document.getElementById('removeCouponButton').style.display = 'inline-block';
+            document.getElementById('applyCouponButton').style.display = 'none';
+   
+        } catch (error) {
+            console.error('Error applying coupon:', error);
+        }
+    }
+    async function removeCoupon(event) {
+        event.preventDefault();
+       
+    // Get order total from the DOM or calculate it dynamically
+   // const totalAmountElement = document.getElementById('totalAmount');
+
+// Get the text content of the element (which includes the overallTotal value)
+//const totalAmountText = totalAmountElement.textContent;
+
+//const orderTotalMatch = totalAmountText.match(/\d+(\.\d+)?/);
+//let orderTotal = 0;
+
+//if (orderTotalMatch) {
+   // orderTotal = parseFloat(orderTotalMatch[0]); // Convert to float if decimal present
+//}
+
+//console.log(orderTotal);
+// Example order total (in cents or paise)
+const couponName = document.getElementById('couponCodeInput').value;
+        const orderTotal = document.getElementById('orderTotalInput').value;
+
+
+        try {
+            const response = await fetch('/remove-coupon', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({couponName,orderTotal })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to apply coupon');
+            }
+
+            const data = await response.json();
+        
+            if (data.overallTotal) {
+                const updatedTotal = data.overallTotal;
+                const totalAmountElement = document.getElementById('totalAmount');
+                totalAmountElement.textContent = `Total Amount: ${updatedTotal}`;
+            }
+        // Hide the Remove Coupon button and show the Apply Coupon button
+        document.getElementById('applyCouponButton').style.display = 'inline-block';
+        document.getElementById('removeCouponButton').style.display = 'none';
+         }
+         catch (error) {
+            console.error('Error applying coupon:', error);
+        }
+         }
+</script>

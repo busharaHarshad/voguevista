@@ -1,0 +1,49 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+  <link rel="stylesheet" href="/CSS/admin.css"> 
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js"></script>
+</head>
+<body>
+  <header>
+    <nav class="navbar navbar-expand-lg fixed-top">
+      <div class="container">
+        <div class="navbar-brand">
+          <img class="imagelogo" src="/img/logobase.png" alt="Logo">
+          <span class="logo-name">Vogue Vista</span>
+        </div>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" 
+          aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span><i class="fa-solid fa-bars"></i></span>
+        </button>
+      </div>
+    </nav>
+  </header>
+<div class=" main-body container-fluid login-container">
+    <div class="login-box">
+      <h5>Admin Login</h5>
+      <form method="POST">
+        <div class="form-group">
+          <input type="email" name="email" class="form-control" required placeholder="Enter Email">
+        </div>
+        <div class="form-group">
+          <input type="password" name="password" class="form-control border-bottom-2" required placeholder="Enter Password">
+        </div>
+        <button type="submit" class=" btn btn-block ">Login</button>
+      </form>
+      <% if(typeof message !== 'undefined') { %>
+        <P style="color:red"><%= message %></p>
+    <% } %>
+    </div>
+  </div> 
+  
+
+
+
+<%- include('../layout/adminfooter.ejs') %>

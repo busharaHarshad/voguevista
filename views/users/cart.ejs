@@ -1,0 +1,225 @@
+<%- include('../layout/header.ejs') %>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+        <!-- Toggler/collapsible Button for small screens for the secondary navbar -->
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavSecondary" 
+            aria-controls="navbarNavSecondary" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Navbar links for the secondary navbar -->
+        <div class="collapse navbar-collapse" id="navbarNavSecondary">
+            <div class="container d-flex flex-wrap justify-content-center">
+                <% category.forEach(category => { %>
+                    <a class="text-dark col-md-1 col-lg-2" href=""><%= category.categoryname %></a>
+                <% }) %>            
+            </div>
+        </div>
+    </div>
+</nav>
+</header>
+<div>
+    <div class="maindetailcart">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h1>Cart</h1>
+                    <% if(typeof message !== 'undefined') { %>
+                        <p style="color:red;"><%= message %></p>
+                    <% } %>
+                    <% if(cart && cart.product.length) { %>
+                        <div class="table-responsive">
+                            <table class="table table border-0">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Image</th>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Description</th>
+                                        <th scope="col">Product Price</th>
+                                        <th scope="col">Quantity</th>
+                                        <th scope="col">Total</th>
+                                        <th scope="col">    </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% cart.product.forEach(item => { %>
+                                        <tr>
+                                            <td>
+                                                <% if (item.productId.image && item.productId.image.length) { %>
+                                                    <img src="/img/<%= item.productId.image[0].filename %>" width="40px" height="40px">
+                                                <% } else { %>
+                                                    <p>No Image</p>
+                                                <% } %>
+                                            </td>
+                                            <td><%= item.productId.productName %></td>
+                                            <td><%= item.productId.description %></td>
+                                            <td>
+                                                <!-- Display offer price if available, otherwise display product price -->
+                                                <% if (item.productId.offerprice > 0) { %>
+                                                    ₹<%= item.productId.offerprice %>
+                                                <% } else { %>
+                                                    ₹<%= item.productId.productprice %>
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <button class="quantity-update-btn" data-type="decrement" data-productid="<%= item.productId._id %>">-</button>
+                                                <span><%= item.quantity %></span>
+                                                <button class="quantity-update-btn" data-type="increment" data-productid="<%= item.productId._id %>">+</button>
+                                            </td>
+                                            <td>
+                                                <span class="total-price">  ₹<%= item.quantity * (item.productId.offerprice > 0 ? item.productId.offerprice : item.productId.productprice) %>
+                                                </span>
+  
+                                            </td>
+                                            <td>
+                                                <a href="/delete-cart?id=<%= item.productId._id %>"><i class="fa-solid fa-trash text-dark pl-3"></i></a>
+                           
+                                            </td>   
+                                        </tr>
+                                    <% }) %>
+                                     <!-- Button for continuing shopping -->
+                                     <tr>
+                                        <!-- Column to span across the table -->
+                                        <td colspan="7" class="text-right">
+                                            <!-- Button to continue shopping -->
+                                            <a href="/"><button type="button" class="btn btn-outline-secondary">Continue Shopping...</button></a>
+                                        </td>
+                                    </tr>
+                                    
+                                </tbody>
+                            </table>
+
+                        </div>
+                       <div class="pt-3 ">
+                        <div class="card "id="cartSummary" style="width: 300px; height:150px;">
+                            <div  class="pl-3 pt-3">
+                                <!-- Display the total number of items -->
+                                Total Items: <span id="totalItems"><%= cart.product.length %></span>
+                            </div>
+                           
+                            <% let cartTotal = 0; %>
+                            <% cart.product.forEach(item => { %>
+                                <% cartTotal += item.quantity * (item.productId.offerprice > 0 ? item.productId.offerprice : item.productId.productprice); %>
+                            <% }); %>
+                     <div class="pl-3 pt-3">
+                         <!-- Display the cart total amount -->
+                     Cart Total: <span id="overallTotal"><%= cartTotal.toFixed(2) %></span>
+                      </div><br>
+                      <a href="/checkout?overallTotal=<%= cartTotal.toFixed(2) %>&totalItem=<%= cart.product.length %>" class="btn buy-button  mr-2 ">Place Order</a>
+                       
+                        </div>
+                        </div>
+                    <% } else { %>
+                        <p>Your cart is empty.</p>
+                    <% } %>
+                    
+                </div>
+            </div>
+      
+   
+        </div>
+    </div>
+    </div>
+<%- include('../layout/footer.ejs') %>
+<script>
+    document.querySelectorAll('.quantity-update-btn').forEach((button) => {
+        button.addEventListener('click', async (event) => {
+            const productId = button.dataset.productid;
+            const type = button.dataset.type;
+            let newQuantity;
+    
+            // Get the current quantity from the span element next to the button
+            const quantitySpan = button.parentElement.querySelector('span');
+            const currentQuantity = parseInt(quantitySpan.textContent);
+    
+            const productPrice = parseFloat(button.parentElement.previousElementSibling.textContent);
+    
+            // Depending on the button type, increment or decrement the quantity
+            if (type === 'increment' && currentQuantity < 10) {
+                newQuantity = currentQuantity + 1;
+            } else if (type === 'decrement' && currentQuantity > 1) {
+                newQuantity = currentQuantity - 1;
+            } else {                // Prevent decrementing the quantity below 1
+                return;
+            }
+    
+            // Construct the URL based on the button type
+            const url = type === 'increment' ? `/increment-quantity/${productId}` : `/decrement-quantity/${productId}`;
+    
+            // Call the backend API to update the quantity
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ newQuantity })
+            });
+    
+            if (response.ok) {
+                const responseData = await response.json();
+                const updatedCart = responseData.cart;
+console.log(updatedCart)
+                // Update the span element with the new quantity
+                quantitySpan.textContent = newQuantity;
+                console.log( quantitySpan.textContent)
+                const productToUpdate = updatedCart.product.find(item => item.productId === productId);
+                if (!productToUpdate) {
+                    console.error('Product not found in cart.');
+                    return;
+                }
+                console.log(productToUpdate.productId)
+                const productDetailsResponse = await fetch(`/get-product-details/${productId}`);
+                if (productDetailsResponse.ok) {
+                    const productDetailsData = await productDetailsResponse.json();
+                    const productDetails = productDetailsData.product;
+                    console.log('Product Details:', productDetails);
+
+                    // Access productname from productDetails
+                    const productName = productDetails.productName;
+                  const  offerprice= productDetails.offerprice ; // Default to 0 if offerprice is not available
+            const  productprice= productDetails.productprice;
+           
+                    console.log('Product Name:', productName,offerprice,productprice);
+  // const newTotalPrice = newQuantity * productToUpdate.productId.offerprice;
+  // Calculate new total price
+  const totalPriceSpan = button.parentElement.nextElementSibling.querySelector('.total-price');
+                console.log(totalPriceSpan)
+                const priceToUse = offerprice > 0 ? offerprice : productprice;
+
+  const newTotalPrice = newQuantity  * priceToUse; 
+               console.log(newTotalPrice)
+               totalPriceSpan.textContent = newTotalPrice.toFixed(2);
+    
+                    // Continue with other logic if needed
+                    const overallTotalSpan = document.getElementById('overallTotal');
+                const currentTotal = parseFloat(overallTotalSpan.textContent);
+                const newTotal = currentTotal + (priceToUse* (newQuantity - currentQuantity));
+                overallTotalSpan.textContent = newTotal.toFixed(2);
+          
+                } else {
+                    console.error('Failed to fetch product details.');
+                }
+                // Calculate new total price
+               // const totalPriceSpan = button.parentElement.nextElementSibling.querySelector('.total-price');
+                //console.log(totalPriceSpan)
+               // const newTotalPrice = newQuantity * productToUpdate.productId.offerprice;
+                //const newTotalPrice = newQuantity * (offerPrice > 0 ? offerPrice : productPrice); 
+               //console.log(newTotalPrice)
+               //totalPriceSpan.textContent = newTotalPrice.toFixed(2);
+    
+                // Update overall total
+                 } else {
+                // Handle error
+              //console.error('Failed to update quantity');
+               // Handle error response from server
+            const errorData = await response.json();
+          // Check if the error is due to insufficient stock
+                alert(errorData.message); // Display the error message in an alert
+            
+            }
+        });
+    });
+
+    
+    </script>
+    

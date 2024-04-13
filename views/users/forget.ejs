@@ -1,0 +1,48 @@
+<%- include('../layout/header.ejs') %>
+<div class="main-block">
+    <div class="contain rounded-5">
+        <!-- Left side content from the second code -->
+        <div class="left-side rounded-5">
+            <h3>Recover your Account</h3>
+            <h6>Get access to your orders,wishlist and recommendations</h6>
+            <img class="logoimage" src="img/logofront.png" alt="Image">
+        </div>
+
+        <!-- Right side content from the second code -->
+        <div class="right-side">
+            <div class="login-form">
+                <form action="/forget" method="POST" class="mt-4">
+                    <div class="form-group">
+                        <input type="name" name="name" class="form-control" required placeholder="Enter Name">
+                    </div>
+                    <div class="form-group">
+                        <input type="name" name="email" class="form-control" required placeholder="Enter your email or number">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" name="password" class="form-control border-bottom-2" required placeholder="Enter your new password">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" name="confirmpassword" class="form-control border-bottom-2" required placeholder="Re-enter your new password">
+                    </div>
+                    <br>
+                    <div class="form-group">
+                        <input type="submit" value="CONTINUE" class="submit-button">
+                    </div>
+                </form>
+            </div>
+            <p style="color:yellow;"></p>
+
+            <% 
+            
+            if(typeof message !== "undefined" ){
+            %>
+            <p style="color:red;"><%= message %></p>
+            
+            <%
+            }
+            
+            %>
+        </div>
+    </div>
+</div>
+<%- include('../layout/footer.ejs') %>

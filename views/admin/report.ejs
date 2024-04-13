@@ -1,0 +1,74 @@
+<%- include('../layout/adminheader.ejs') %>
+
+<div class="main-content">
+<div class="sidebar">
+    <div class="sidebar-buttons">
+      <a href="/admin/home" ><button type="button" class="buttonside btn-block "><i class="fa-solid fa-chess-board"></i>  Dashboard</button></a>
+      <a href="/admin/customer"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-users"></i>   Customers</button></a>
+      <a href="/admin/product"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-briefcase"></i>   Products</button></a>
+      <a href="/admin/order"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-file"></i>   Orders</button></a>
+      <a href=""><button type="button" class="buttonside btn-block"><i class="fa-regular fa-image"></i>  Banner Management</button></a>
+      <a href="/admin/coupon"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-star"></i>       Coupon Management</button></a>
+      <a href="/admin/salereport"><button type="button" class="buttonside btn-block active-linking text-white"><i class="fa-solid fa-chart-simple"></i>  Sales Report</button></a>
+      <a href="/admin/offer"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-user-tie"></i>        Offer</button></a>
+      <a href="/admin/category"><button type="button" class="buttonside btn-block"><i class="fa-solid fa-list"></i>        Category</button></a>
+      <a href=""><button type="button" class="buttonside  btn-block"><i class="fa-solid fa-gear"></i>   Settings</button>
+      <a href="/admin/logout"><button type="button" class="buttonside  btn-block"><i class="fa-solid fa-right-from-bracket"></i>   Logout</button></a>
+    
+    </div>
+  </div>
+    <div class="container-table  mt-5">
+       <h2>Order Details</h2>
+       <h3>Order ID: <%= orders._id %></h3>
+        <p>Creation Date: <%= orders.createdAt.toDateString() %></p>
+            <div class="order-details">
+                <div class="delivery-address">
+                    <h4>Delivery Address:</h4>
+                    <p>Name: <%= orders.address.name %></p>
+                    <p>Address: <%= orders.address.address %></p>
+                    <p>City: <%= orders.address.city %></p>
+                    <p>State: <%= orders.address.state %></p>
+                    <p>Pincode: <%= orders.address.pincode %></p>
+                    <p>status:<span class="text-success"><%= product.orderStatus %></span></p>
+                </div>
+               <hr>
+                <div class="delivery-address">
+                    <h4>Product Details:</h4>
+                    <p>Payment Method: <%= orders.paymentMethod %></p>
+                    <p>Product Name: <%= product.productId.productName %></p>
+                    <img class="order-image" src="/img/<%= product.productId.image[0].filename %>" width="40px" height="40px">
+                    <p>Quantity: <%= product.quantity %></p>
+                    <p>Product Price: <%= orders.productPrice %></p>
+                    <p>Total Amount: <%= orders.totalAmount %></p>
+                   </div>
+                </div>
+                <button class="buttongenrate active-linking" onclick="printOrderDetails()">Generate Details</button>
+
+            </div>
+             <!-- Add a horizontal line between orders -->
+    </div>
+</div>
+  </div>
+
+<%- include('../layout/adminfooter.ejs') %>
+<script>
+    function printOrderDetails() {
+        window.print();
+    }
+</script>
+<style>
+    @media print {
+        /* Hide header, footer, and buttons */
+        .sidebar, .buttonside ,.buttongenrate{
+            display: none;
+        }
+
+       
+
+        /* Print the background color and images */
+        body {
+            
+            background-color: #fff;
+        }
+    }
+</style>

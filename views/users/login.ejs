@@ -1,0 +1,42 @@
+<%- include('../layout/header.ejs') %>
+</header>
+<div class="main-block">
+    <div class="contain rounded-5">
+        <!-- Left side content from the second code -->
+        <div class="left-side rounded-5">
+            <h3>Login</h3>
+            <h6>"Vivid Dreams, Colorful Realities." "Every Hue Every Smile."</h6>
+            <img class="logoimage" src="img/logofront.png" alt="Image">
+        </div>
+
+        <!-- Right side content from the second code -->
+        <div class="right-side">
+            <div class="login-form">
+                <% if(typeof message !== 'undefined') { %>
+                    <p style="color:red;"><%= message %></p>
+                <% } %>
+                <form action="/login" method="POST" class="mt-4">
+                    <div class="form-group">
+                        <input type="email" name="email" class="form-control" required placeholder="Enter Email">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" name="password" class="form-control border-bottom-2" required placeholder="Enter Password">
+                    </div>
+                    <br>
+                    <div class="form-group">
+                        <input type="submit" value="LOGIN" class="submit-button">
+                    </div>
+                </form>
+            </div>
+            <br>
+            <div>
+                <a href="forget" class="forgot"><small>Forgot Password?</small></a>
+            </div>
+            <br>
+            <div>
+                <a href="register" class="creteacct"><small>New to Vogue Vista? Create an account</small></a>
+            </div>
+        </div>
+    </div>
+</div>
+<%- include('../layout/footer.ejs') %>
