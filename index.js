@@ -15,7 +15,7 @@ app.use(
 )
 
 
-const userRoute=require('./routes/userRoute')
+const userRoute=require('./routes/userRoute.js')
 app.use('/',userRoute);
 
 const adminRoute=require('./routes/adminRoute')
