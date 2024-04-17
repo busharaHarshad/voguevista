@@ -8,7 +8,7 @@ app.use(express.static('public'));
 const session=require('express-session')
 app.use(
     session({
-        secret:"my secret",
+        secret:process.env.SESSION_SECRET,
         resave:false,
         saveUninitilalized:false
     })
