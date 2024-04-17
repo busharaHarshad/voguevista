@@ -6,8 +6,7 @@ const PORT=process.env.PORT||2600
 dbConnect();
 app.use(express.static('public'));
 const session=require('express-session')
-app.use(
-    session({
+app.use(session({
         secret:process.env.SESSION_SECRET,
         resave:false,
         saveUninitilalized:false
