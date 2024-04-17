@@ -9,7 +9,7 @@ const Order=require('../models/orderModel')
 const Wallet=require('../models/walletModel')
 const Coupon=require('../models/couponModel')
 const Razorpay = require('razorpay');
-const { productdetailLoad } = require('./userController');
+//const { productdetailLoad } = require('./userController');
 const { RAZORPAY_KEY_ID , RAZORPAY_KEY_SECRET } =process.env;
 var instance = new Razorpay({ key_id: RAZORPAY_KEY_ID, key_secret: RAZORPAY_KEY_SECRET })
 
