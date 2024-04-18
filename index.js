@@ -6,15 +6,9 @@ const PORT=process.env.PORT||2600
 dbConnect();
 app.use(express.static('public'));
 const session=require('express-session')
-app.use(session({
-        secret:process.env.SESSION_SECRET,
-        resave:false,
-        saveUninitilalized:false
-    })
-)
 
 
-const userRoute=require('./routes/userRoute.js')
+const userRoute=require('./routes/userRoute')
 app.use('/',userRoute);
 
 const adminRoute=require('./routes/adminRoute')

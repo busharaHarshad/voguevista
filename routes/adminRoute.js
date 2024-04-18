@@ -1,12 +1,8 @@
 const express=require('express')
 const admin_route=express()
 const bodyParser=require('body-parser')
-const session=require('express-session')
-const config=require('../config/dbConnect')
 const Products = require('../models/adminModel');
-
 const Order = require('../models/orderModel');
-admin_route.use(session({secret:config.sessionSecret}))
 admin_route.use(express.json())
 admin_route.use(bodyParser.urlencoded({extended:true}))
 const auth=require('../middleware/adminAuth')

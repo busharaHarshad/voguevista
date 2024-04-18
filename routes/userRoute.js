@@ -1,11 +1,7 @@
 const express=require('express')
 const user_route=express()
-const session=require('express-session')
 const nocache=require('nocache')
-const config=require('../config/dbConnect')
 user_route.use(nocache())
-
-user_route.use(session({secret:config.sessionSecret}));
 const auth=require('../middleware/auth')
 
 user_route.set('view engine','ejs')
