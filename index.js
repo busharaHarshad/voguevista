@@ -15,7 +15,7 @@ app.use(session({
 }))
 
 const userRoute=require('./routes/userRoute')
-app.use('/user',userRoute);
+app.use('/',userRoute);
 
 const adminRoute=require('./routes/adminRoute')
 app.use('/admin',adminRoute);
