@@ -7,6 +7,11 @@ dbConnect();
 app.use(express.static('public'));
 const session=require('express-session')
 
+app.use(session({
+    secret:process.env.SESSION_SECRET,
+    resave:false,
+    saveUninitialized:false,
+}))
 
 const userRoute=require('./routes/userRoute')
 app.use('/',userRoute);
