@@ -9,7 +9,7 @@ const Coupon=require('../models/couponModel')
 const Razorpay = require('razorpay');
 const { productdetailLoad } = require('./userController');
 const  RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID;
-const  RAZORPAY_KEY_SECRET = process.env.RAZORPAY_SECRET;
+const  RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
 var instance = new Razorpay({ key_id: RAZORPAY_KEY_ID, key_secret: RAZORPAY_KEY_SECRET })
 //cart0000000000000000000000000000000000000000000000000000000000000000000000000000
 const getCart=async(req,res)=>{
