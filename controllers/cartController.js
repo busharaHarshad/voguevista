@@ -1,4 +1,4 @@
-const User=require('../models/userModel')
+const User = require('../models/userModel')
 const Products = require('../models/adminModel');
 const Category = require('../models/categoryModel');
 const Address=require('../models/addressModel');
@@ -10,7 +10,7 @@ const Razorpay = require('razorpay');
 const { productdetailLoad } = require('./userController');
 const { RAZORPAY_KEY_ID , RAZORPAY_KEY_SECRET } =process.env;
 var instance = new Razorpay({ key_id: RAZORPAY_KEY_ID, key_secret: RAZORPAY_KEY_SECRET })
-
+console.log(RAZORPAY_KEY_ID , RAZORPAY_KEY_SECRET)
 //cart0000000000000000000000000000000000000000000000000000000000000000000000000000
 const getCart=async(req,res)=>{
     try{
