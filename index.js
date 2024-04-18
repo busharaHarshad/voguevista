@@ -3,6 +3,8 @@ const app=express();
 const dbConnect=require("./config/dbConnect")
 const dotenv=require("dotenv").config()
 const session=require('express-session')
+const nocache=require('nocache')
+app.use(nocache())
 const PORT=process.env.PORT||2600
 dbConnect();
 app.use(express.static('public'));

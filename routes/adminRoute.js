@@ -1,19 +1,13 @@
 const express=require('express')
 const admin_route=express()
 const bodyParser=require('body-parser')
-const Products = require('../models/adminModel');
-const Order = require('../models/orderModel');
 admin_route.use(express.json())
 admin_route.use(bodyParser.urlencoded({extended:true}))
 const auth=require('../middleware/adminAuth')
 admin_route.set('view engine','ejs')
 admin_route.set('views','./views/admin')
 const multer=require('multer')
-const path=require('path')
-const bcrypt = require('bcrypt');
-const fs = require('fs');
 admin_route.use(express.static('public'))
-
 const storage=multer.diskStorage({
     destination:'./public/img',
     filename:function(req,file,cb){
