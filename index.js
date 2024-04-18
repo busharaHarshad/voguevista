@@ -2,11 +2,10 @@ const express=require('express')
 const app=express();
 const dbConnect=require("./config/dbConnect")
 const dotenv=require("dotenv").config()
+const session=require('express-session')
 const PORT=process.env.PORT||2600
 dbConnect();
 app.use(express.static('public'));
-const session=require('express-session')
-
 app.use(session({
     secret:process.env.SESSION_SECRET,
     resave:false,
